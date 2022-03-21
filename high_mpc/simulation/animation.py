@@ -282,8 +282,8 @@ class SimVisual(object):
             self.l_quad_pred_traj.set_3d_properties(pred_quad_traj[:, 2])
             if quad_pos_arr[-1, 0] <= 2.0:
                 # plot planner trajectory
-                self.l_pend_pred_traj.set_data(pred_pend_traj[opt_idx, 0], pred_pend_traj[opt_idx, 1])
-                self.l_pend_pred_traj.set_3d_properties(pred_pend_traj[opt_idx, 2])
+                self.l_pend_pred_traj.set_data(np.array([pred_pend_traj[opt_idx, 0]]), np.array([pred_pend_traj[opt_idx, 1]]))
+                self.l_pend_pred_traj.set_3d_properties(np.array([pred_pend_traj[opt_idx, 2]]))
             
             #
             self.l_pend.set_data([self.pivot_point[0], pend_obs[kPosX]], [self.pivot_point[1], pend_obs[kPosY]] )

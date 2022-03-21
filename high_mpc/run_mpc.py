@@ -15,7 +15,7 @@ from high_mpc.simulation.animation import SimVisual
 #
 def arg_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--save_video', type=bool, default=False,
+    parser.add_argument('--save_video', type=bool, default=True,
         help="Save the animation as a video file")
     return parser
 
@@ -36,7 +36,7 @@ def run_mpc(env):
         update = False
         if t>= env.sim_T:
             update = True
-        # yield [info, t, update]
+        yield [info, t, update]
 
 def main():
     #
@@ -53,20 +53,20 @@ def main():
     sim_visual = SimVisual(env)
 
     #
-    run_mpc(env)
+    # run_mpc(env)
     
-    # run_frame = partial(run_mpc, env)
-    # ani = animation.FuncAnimation(sim_visual.fig, sim_visual.update, frames=run_frame,
-    #         init_func=sim_visual.init_animate, interval=100, blit=True, repeat=False)
+    run_frame = partial(run_mpc, env)
+    ani = animation.FuncAnimation(sim_visual.fig, sim_visual.update, frames=run_frame,
+            init_func=sim_visual.init_animate, interval=100, blit=True, repeat=False)
     
-    # #
-    # if args.save_video:
-    #     writer = animation.writers["ffmpeg"]
-    #     writer = writer(fps=10, metadata=dict(artist='Me'), bitrate=1800)
-    #     ani.save("MPC_0.mp4", writer=writer)
+    #
+    if args.save_video:
+        writer = animation.writers["ffmpeg"]
+        writer = writer(fps=10, metadata=dict(artist='Me'), bitrate=1800)
+        ani.save("MPC_0.mp4", writer=writer)
     
-    # plt.tight_layout()
-    # plt.show()
+    plt.tight_layout()
+    plt.show()
     
 if __name__ == "__main__":
     main()
