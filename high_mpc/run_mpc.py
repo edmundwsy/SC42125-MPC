@@ -11,6 +11,7 @@ from functools import partial
 #
 from high_mpc.simulation.dynamic_gap import DynamicGap
 from high_mpc.mpc.mpc import MPC
+from high_mpc.mpc.linear_mpc import MPC2
 from high_mpc.simulation.animation import SimVisual
 #
 def arg_parser():
@@ -47,7 +48,8 @@ def main():
     so_path = "./mpc/saved/mpc_v1.so" # saved mpc model (casadi code generation)
     #
     mpc = MPC(T=plan_T, dt=plan_dt, so_path=so_path)
-    env = DynamicGap(mpc, plan_T, plan_dt)
+    mpc2 = MPC2(T=plan_T, dt=plan_dt, so_path=so_path)
+    env = DynamicGap(mpc2, plan_T, plan_dt)
     
     #
     sim_visual = SimVisual(env)
