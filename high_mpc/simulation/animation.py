@@ -99,9 +99,9 @@ class SimVisual(object):
         # Plot 3D coordinates
         self.l_quad_pos, = self.ax_3d.plot([], [], [], 'b-')
         self.l_quad_pred_traj, = self.ax_3d.plot([], [], [], 'r*')
-        self.l_pend_pred_traj, = self.ax_3d.plot([], [], [], 'ko')
+        self.l_pend_pred_traj, = self.ax_3d.plot([], [], [], 'k*')
         #
-        self.l_pend, = self.ax_3d.plot([], [], [], 'b', linewidth=2)
+        self.l_pend, = self.ax_3d.plot([], [], [], 'r', linewidth=0)
         self.l_pend_edge1, = self.ax_3d.plot([], [], [], 'b', linewidth=2)
         self.l_pend_edge2, = self.ax_3d.plot([], [], [], 'b', linewidth=2)
         self.l_pend_edge3, = self.ax_3d.plot([], [], [], 'b', linewidth=2)
@@ -214,7 +214,7 @@ class SimVisual(object):
         pend_obs = info["pend_obs"]
         pend_corners = info["pend_corners"]
         pred_quad_traj = info["pred_quad_traj"]
-        pred_pend_traj = info["pred_pend_traj"]
+        pred_pend_traj = np.array(info["pred_pend_traj"])
         opt_t = info["opt_t"]
         plan_dt = info["plan_dt"]
         opt_idx = np.clip( int(opt_t/plan_dt), 0, pred_quad_traj.shape[0]-1)

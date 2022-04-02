@@ -49,9 +49,9 @@ class MPC(object):
 
         # cost matrix for tracking the pendulum motion
         self._Q_pen = np.diag([
-            0, 100, 100,  # delta_x, delta_y, delta_z
-            10, 10, 10, 10, # delta_qw, delta_qx, delta_qy, delta_qz
-            0, 10, 10]) # delta_vx, delta_vy, delta_vz
+            0, 0, 10,  # delta_x, delta_y, delta_z
+            0, 0, 0, 0, # delta_qw, delta_qx, delta_qy, delta_qz
+            0, 0, 10]) # delta_vx, delta_vy, delta_vz
         
         # cost matrix for the action
         self._Q_u = np.diag([0.1, 0.1, 0.1, 0.1]) # T, wx, wy, wz
@@ -247,15 +247,15 @@ class MPC(object):
             "print_time": False
         }
         
-        # self.solver = ca.nlpsol("solver", "ipopt", nlp_dict, ipopt_options)
-        # # jit (just-in-time compilation)
+        self.solver = ca.nlpsol("solver", "ipopt", nlp_dict, ipopt_options)
+        # jit (just-in-time compilation)
         # print("Generating shared library........")
         # cname = self.solver.generate_dependencies("mpc_v1.c")  
         # system('gcc -fPIC -shared -O3 ' + cname + ' -o ' + self.so_path) # -O3
         
         # # reload compiled mpc
-        print(self.so_path)
-        self.solver = ca.nlpsol("solver", "ipopt", self.so_path, ipopt_options)
+        # print(self.so_path)
+        # self.solver = ca.nlpsol("solver", "ipopt", self.so_path, ipopt_options)
 
     def solve(self, ref_states):
         # # # # # # # # # # # # # # # #

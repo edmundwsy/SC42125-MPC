@@ -1,8 +1,8 @@
 import numpy as np
 #
 from high_mpc.simulation.quadrotor import Quadrotor_v0
-from high_mpc.simulation.pendulum_v0 import Pendulum_v0
-from high_mpc.simulation.pendulum_v1 import Pendulum_v1
+from high_mpc.simulation.box_v0 import box_v0
+from high_mpc.simulation.box_v1 import box_v1
 #
 from high_mpc.common.quad_index import *
 
@@ -26,8 +26,8 @@ class DynamicGap(object):
         self.plan_dt = plan_dt
 
         # 
-        self.goal_point = np.array([4.0,  0.0, 2.0])
-        self.pivot_point = np.array([2.0, 0.0, 3.0])
+        self.goal_point = np.array([4.0,  0.0, 1.0])
+        self.pivot_point = np.array([2.0, 0.0, 5.0])
 
         # goal state, position, quaternion, velocity
         self.quad_sT = self.goal_point.tolist() + [1.0, 0.0, 0.0, 0.0] + [0.0, 0.0, 0.0] 
@@ -38,9 +38,9 @@ class DynamicGap(object):
         self.max_episode_steps = int(self.sim_T/self.sim_dt)
         # Simulators, a quadrotor and a pendulum
         self.quad = Quadrotor_v0(dt=self.sim_dt)
-        self.pend = Pendulum_v0(self.pivot_point, dt=self.sim_dt)
+        self.pend = box_v0(self.pivot_point, dt=self.sim_dt)
 
-        self.planner = Pendulum_v1(pivot_point=self.pivot_point, sigma=10, \
+        self.planner = box_v1(pivot_point=self.pivot_point, sigma=10, \
             T=self.plan_T, dt=self.plan_dt)
     
 
