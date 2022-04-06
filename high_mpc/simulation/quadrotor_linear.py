@@ -7,7 +7,7 @@ from high_mpc.common.quad_index_2 import *
 class Quadrotor_v1(object):
     #
     def __init__(self, dt):
-        self.s_dim = 10
+        self.s_dim = 8
         self.a_dim = 4
         #
         self._state = np.zeros(shape=self.s_dim)
@@ -24,8 +24,8 @@ class Quadrotor_v1(object):
         # Sampling range of the quadrotor's initial position
         self._xyz_dist = np.array(
             [ [-3.0, -1.0], # x 
-              [-2.0, 2.],   # y
-              [0.0, 2.5]]   # z
+              [-1.0, 1.],   # y
+              [1.0, 1.5]]   # z
         )
         # Sampling range of the quadrotor's initial velocity
         self._vxyz_dist = np.array(
@@ -55,7 +55,7 @@ class Quadrotor_v1(object):
             low=self._xyz_dist[2, 0], high=self._xyz_dist[2, 1])
         
         # initialize rotation, randomly
-        self._state[kTheta:kPhi+1] = np.random.uniform(low=0.0, high=1, size=2) * 2*np.pi
+        self._state[kTheta:kPhi+1] = np.random.uniform(low=0.0, high=0.1, size=2) * 2*np.pi
         
         # initialize velocity, randomly
         self._state[kVelX] = np.random.uniform(
@@ -65,12 +65,6 @@ class Quadrotor_v1(object):
         self._state[kVelZ] = np.random.uniform(
             low=self._vxyz_dist[2, 0], high=self._vxyz_dist[2, 1])
         #
-
-        # initialize velocity, randomly
-        self._state[kH] = np.random.uniform(
-            low=2, high=5)
-        self._state[kVelH] = np.random.uniform(
-            low=-1, high=1)
         
         return self._state
 
@@ -109,10 +103,7 @@ class Quadrotor_v1(object):
 
         dstate[kVelX] = self._gz * dstate[kTheta]
         dstate[kVelY] = self._gz * dstate[kPhi]
-        dstate[kVelZ] = thrust - self._gz
-
-        dstate[kH] = state[kVelH]
-        dstate[kVelH] = - self._gz
+        dstate[kVelZ] = thrust
 
         return dstate
 
@@ -163,10 +154,11 @@ class Quadrotor_v1(object):
         """
         Retrieve Euler Angles of the Vehicle
         """
-        euler = self._state[kTheta:kPhi+1]
+        euler = np.zeros(shape=3)
+        euler[0:2] = self._state[kTheta:kPhi+1]
         return euler
 
-    def get_axes(self):
+    def get_axes(self,p_bz):
         """
         Get the 3 axes (x, y, z) in world frame (for visualization only)
         """
@@ -176,10 +168,11 @@ class Quadrotor_v1(object):
         b_z = np.array([0, 0,  -self._arm_l])
         
         # rotation matrix
-        rot_matrix = R.from_euler(self.get_euler()).as_matrix()
+        rot_matrix = R.from_euler('zyx',self.get_euler()).as_matrix()
         quad_center = self.get_position()
+        quad_center[2] = p_bz + quad_center[2] # compensate relative distance for visualization
         
-        # axes in body frame
+        # axes in world frame
         w_x = rot_matrix@b_x + quad_center
         w_y = rot_matrix@b_y + quad_center
         w_z = rot_matrix@b_z + quad_center
@@ -195,7 +188,7 @@ class Quadrotor_v1(object):
         b_motor3 = np.array([-np.sqrt(self._arm_l/2), -np.sqrt(self._arm_l/2), 0])
         b_motor4 = np.array([np.sqrt(self._arm_l/2), -np.sqrt(self._arm_l/2), 0])
         #
-        rot_matrix = R.from_euler(self.get_euler()).as_matrix()
+        rot_matrix = R.from_euler('zyx',self.get_euler()).as_matrix()
         quad_center = self.get_position()
         
         # motor position in world frame

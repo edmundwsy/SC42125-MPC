@@ -2,7 +2,7 @@ import numpy as np
 #
 from high_mpc.simulation.quadrotor_linear import Quadrotor_v1
 from high_mpc.simulation.box_v0 import box_v0
-from high_mpc.simulation.box_v1 import box_v1
+from high_mpc.simulation.box_v2 import box_v2
 #
 from high_mpc.common.quad_index_2 import *
 
@@ -17,7 +17,7 @@ class Space(object):
     def sample(self):
         return np.random.uniform(self.low, self.high)
 
-class DynamicGap(object):
+class DynamicGap2(object):
 
     def __init__(self, mpc, plan_T, plan_dt):
         #
@@ -26,11 +26,11 @@ class DynamicGap(object):
         self.plan_dt = plan_dt
 
         # 
-        self.goal_point = np.array([4.0,  0.0, 1.0])
-        self.pivot_point = np.array([2.0, 0.0, 5.0])
+        self.goal_point = np.array([4.0, 0.0, 0.0]) # quad
+        self.pivot_point = np.array([3.0, 0.0, 5.0])
 
-        # goal state, position, quaternion, velocity
-        self.quad_sT = self.goal_point.tolist() + [1.0, 0.0, 0.0, 0.0] + [0.0, 0.0, 0.0] 
+        # goal state, position, velocity, roll pitch
+        self.quad_sT = self.goal_point.tolist() + [0.0, 0.0, 0.0] + [0.0, 0.0] 
 
         # simulation parameters ....
         self.sim_T = 3.0    # Episode length, seconds
@@ -40,7 +40,7 @@ class DynamicGap(object):
         self.quad = Quadrotor_v1(dt=self.sim_dt)
         self.pend = box_v0(self.pivot_point, dt=self.sim_dt)
 
-        self.planner = box_v1(pivot_point=self.pivot_point, sigma=10, \
+        self.planner = box_v2(pivot_point=self.pivot_point, sigma=10, \
             T=self.plan_T, dt=self.plan_dt)
     
 
@@ -73,8 +73,9 @@ class DynamicGap(object):
         
         # observation, can be part of the state, e.g., postion
         # or a cartesian representation of the state
-        quad_obs = self.quad.get_cartesian_state()
+        quad_obs = self.quad.get_cartesian_state() # quad
         pend_obs = self.pend.get_cartesian_state()
+        quad_obs[kPosZ] = quad_obs[kPosZ]+pend_obs[kPosZ] # TODO
         #
         obs = (quad_obs - pend_obs).tolist()
         
@@ -85,8 +86,9 @@ class DynamicGap(object):
         opt_t = u
         
         #
-        plan_pend_traj, pred_pend_traj_cart = self.planner.plan(self.pend_state, opt_t)
+        plan_pend_traj, pred_pend_traj_cart = self.planner.plan(self.pend_state, opt_t) #TODO
         pred_pend_traj_cart = np.array(pred_pend_traj_cart)
+        print(plan_pend_traj)
         
         #
         quad_s0 = self.quad_state.tolist()
@@ -94,6 +96,9 @@ class DynamicGap(object):
 
         # run nonliear model predictive control
         quad_act, pred_traj = self.mpc.solve(ref_traj)
+        # print(pred_traj[:,kPosZ])
+        # print(quad_act)
+        pred_traj[:,kPosZ] += self.pend.get_cartesian_state()[kPosZ]
 
         # run the actual control command on the quadrotor
         self.quad_state = self.quad.run(quad_act)
@@ -103,12 +108,13 @@ class DynamicGap(object):
         # update the observation.
         quad_obs = self.quad.get_cartesian_state()
         pend_obs = self.pend.get_cartesian_state()
+        quad_obs[kPosZ] = quad_obs[kPosZ]+pend_obs[kPosZ] # TODO
         obs = (quad_obs - pend_obs).tolist()
         #
         info = {
             "quad_obs": quad_obs, 
             "quad_act": quad_act, 
-            "quad_axes": self.quad.get_axes(),
+            "quad_axes": self.quad.get_axes(p_bz=pend_obs[kPosZ]),
             "pend_obs": pend_obs,
             "pend_corners": self.pend.get_3d_corners(),
             "pred_quad_traj": pred_traj, 

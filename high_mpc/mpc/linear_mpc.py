@@ -30,34 +30,34 @@ class MPC2(object):
         # Quadrotor constant
         self._w_max_yaw = 6.0
         self._w_max_xy = 6.0
-        self._thrust_min = 2.0
-        self._thrust_max = 20.0
+        self._thrust_min = 0.0
+        self._thrust_max = 30.0
 
         #
         # state dimension (px, py, pz,           # quadrotor position
         #                  qw, qx, qy, qz,       # quadrotor quaternion
         #                  vx, vy, vz,           # quadrotor linear velocity
-        self._s_dim = 10
+        self._s_dim = 8
         # action dimensions (c_thrust, wx, wy, wz)
         self._u_dim = 4
         
         # cost matrix for tracking the goal point
         self._Q_goal = np.diag([
             100, 100, 100,  # delta_x, delta_y, delta_z
-            10, 10, 10, 10, # delta_qw, delta_qx, delta_qy, delta_qz
-            10, 10, 10]) 
+            10, 10, 10, # delta_vx, delta_vy, delta_vz
+            10, 10]) # delta_wx, delta_wy
 
         # cost matrix for tracking the pendulum motion
         self._Q_pen = np.diag([
             0, 0, 10,  # delta_x, delta_y, delta_z
-            0, 0, 0, 0, # delta_qw, delta_qx, delta_qy, delta_qz
-            0, 0, 10]) # delta_vx, delta_vy, delta_vz
+            0, 0, 10, # delta_vx, delta_vy, delta_vz
+            0, 0]) # delta_wx, delta_wy
         
         # cost matrix for the action
-        self._Q_u = np.diag([0.1, 0.1, 0.1, 0.1]) # T, wx, wy, wz
+        self._Q_u = np.diag([0.1, 0.1, 0.1, 0.0]) # T, wx, wy, wz
 
         # initial state and control action
-        self._quad_s0 = [1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        self._quad_s0 = [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
         self._quad_u0 = [9.81, 0.0, 0.0, 0.0]
 
         self._initDynamics()
@@ -72,11 +72,9 @@ class MPC2(object):
         theta, phi = ca.SX.sym('theta'), ca.SX.sym('phi')
         #
         vx, vy, vz = ca.SX.sym('vx'), ca.SX.sym('vy'), ca.SX.sym('vz')
-        #
-        h, vh = ca.SX.sym('h'), ca.SX.sym('vh')
 
         # -- conctenated vector
-        self._x = ca.vertcat(px, py, pz, vx, vy, vz, theta, phi, h, vh) 
+        self._x = ca.vertcat(px, py, pz, vx, vy, vz, theta, phi) 
 
         # # # # # # # # # # # # # # # # # # # 
         # --------- Control Command ------------
@@ -98,12 +96,9 @@ class MPC2(object):
             vz,
             self._gz * theta,
             self._gz * phi,
-            thrust - self._gz,
+            thrust,
             wx,
-            wy,
-            vh,
-            - self._gz
-            # (1 - 2*qx*qx - 2*qy*qy) * thrust - self._gz
+            wy
         )
 
         #
@@ -134,7 +129,7 @@ class MPC2(object):
 
         #
         # # # # # # # # # # # # # # # # # # # # 
-        # # ---- Non-linear Optimization -----
+        # # ---- QP Optimization -----
         # # # # # # # # # # # # # # # # # # # #
         self.nlp_w = []       # nlp variables
         self.nlp_w0 = []      # initial guess of nlp variables
