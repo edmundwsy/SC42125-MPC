@@ -99,12 +99,6 @@ class DynamicGap2(object):
         quad_s0[6:8] = quad_state[3:5]
         quad_s0 = quad_s0.tolist()
         
-        # print("quad_s0 pos", quad_s0[0:3])
-        # print("quad_s0 vel", quad_s0[3:6])
-        # print("quad_s0 rpy", quad_s0[6:8])
-        print("quad state vel", quad_state[6:9])
-        print("pend state vel", pend_state[6:9])
-        print("quad state rpy", quad_state[3:6])
         # ref_traj = quad_s0 + plan_pend_traj + self.quad_sT # in mpc state, 8d+3
 
         # ------------------------------------------------------------
@@ -128,8 +122,6 @@ class DynamicGap2(object):
         
         # update the observation.
         quad_obs = self.quad.get_cartesian_state()
-        print("quad new state pos", quad_obs[0:3])
-        print("quad new state euler", quad_obs[3:6])
         pend_obs = self.pend.get_cartesian_state()
         
         obs = (quad_obs - pend_obs).tolist()

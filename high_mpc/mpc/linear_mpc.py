@@ -44,11 +44,37 @@ class MPC2(object):
         # cost matrix for tracking the goal point
         self._Q = np.diag([
             100, 100, 100,  # delta_x, delta_y, delta_z
-            0.01, 0.01, 0.01, # delta_vx, delta_vy, delta_vz
-            0.1, 0.1]) # delta_wx, delta_wy
+            0.0, 0.0, 0.0, # delta_vx, delta_vy, delta_vz
+            0.01, 0.01]) # delta_wx, delta_wy
         
         # cost matrix for the action
         self._R = np.diag([0.1, 0.1, 0.1, 0.1]) # T, wx, wy, wz
+
+        # solution of the DARE        
+        self._P = np.array([[ 4.62926944e+02,  1.12579780e-13,  2.71715235e-14,
+         8.39543304e+01,  3.76898971e-14, -6.76638800e-15,
+         1.67233208e-14,  6.27040086e+01],
+       [ 1.12579780e-13,  4.62926944e+02,  2.96208280e-13,
+         2.13652440e-14,  8.39543304e+01,  1.44584455e-13,
+         6.27040086e+01, -1.58557492e-14],
+       [ 2.71715235e-14,  2.96208280e-13,  3.61822016e+02,
+        -4.79742110e-15,  2.96141426e-14,  4.73164850e+01,
+         1.76132359e-15, -4.60323355e-15],
+       [ 8.39543304e+01,  2.13652440e-14, -4.79742110e-15,
+         2.40774426e+01,  1.22085597e-15, -6.17333244e-15,
+        -2.42034579e-15,  2.27569742e+01],
+       [ 3.76898971e-14,  8.39543304e+01,  2.96141426e-14,
+         1.22085597e-15,  2.40774426e+01,  2.40290197e-14,
+         2.27569742e+01, -1.02861327e-14],
+       [-6.76638800e-15,  1.44584455e-13,  4.73164850e+01,
+        -6.17333244e-15,  2.40290197e-14,  1.23884975e+01,
+         2.51466214e-14, -1.05792536e-14],
+       [ 1.67233208e-14,  6.27040086e+01,  1.76132359e-15,
+        -2.42034579e-15,  2.27569742e+01,  2.51466214e-14,
+         2.93179270e+01, -1.98758154e-14],
+       [ 6.27040086e+01, -1.58557492e-14, -4.60323355e-15,
+         2.27569742e+01, -1.02861327e-14, -1.05792536e-14,
+        -1.98758154e-14,  2.93179270e+01]])
 
         # initial state and control action
         self._quad_s0 = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
@@ -108,15 +134,18 @@ class MPC2(object):
 
         # placeholder for the quadratic cost function
         Delta_s = ca.SX.sym("Delta_s", self._s_dim)
-        Delta_u = ca.SX.sym("Delta_u", self._u_dim)        
+        Delta_u = ca.SX.sym("Delta_u", self._u_dim)     
+        Delta_sn = ca.SX.sym("Delta_sn", self._s_dim)  # terminal cost   
         
         #        
         cost_goal = Delta_s.T @ self._Q @ Delta_s 
         cost_u = Delta_u.T @ self._R @ Delta_u
+        cost_terminal = Delta_sn.T @ self._P @ Delta_sn
 
         #
         f_cost_goal = ca.Function('cost_goal', [Delta_s], [cost_goal])
         f_cost_u = ca.Function('cost_u', [Delta_u], [cost_u])
+        f_cost_terminal = ca.Function('cost_terminal', [Delta_sn], [cost_terminal])
 
         #
         # # # # # # # # # # # # # # # # # # # # 
@@ -168,7 +197,7 @@ class MPC2(object):
             delta_s_k = X[:, k+1]
             cost_goal_k = f_cost_goal(delta_s_k)
         
-            delta_u_k = U[:, k]-[self._gz, 0, 0, 0]
+            delta_u_k = U[:, k]
             cost_u_k = f_cost_u(delta_u_k)
 
             self.mpc_obj = self.mpc_obj + cost_goal_k + cost_u_k 
@@ -183,6 +212,10 @@ class MPC2(object):
             self.nlp_g += [X_next[:, k] - X[:, k+1]]
             self.lbg += g_min
             self.ubg += g_max
+            
+        delta_x_n = X[:, self._N]
+        cost_x_n = f_cost_terminal(delta_x_n)
+        self.mpc_obj += cost_x_n
 
         # nlp objective
         nlp_dict = {'f': self.mpc_obj, 
@@ -252,7 +285,6 @@ class MPC2(object):
         
         #
         print("OPTIMAL CONTROL", opt_u.transpose()[0])
-        print("Current state", sol_x0[:self._s_dim].transpose())
         x0_array = np.reshape(sol_x0[:-self._s_dim], newshape=(-1, self._s_dim+self._u_dim))
         
         # return optimal action, and a sequence of predicted optimal trajectory.  
