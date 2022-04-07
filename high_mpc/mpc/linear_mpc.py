@@ -44,7 +44,7 @@ class MPC2(object):
         # cost matrix for tracking the goal point
         self._Q = np.diag([
             100, 100, 100,  # delta_x, delta_y, delta_z
-            0.0, 0.0, 0.0, # delta_vx, delta_vy, delta_vz
+            0.01, 0.01, 0.01, # delta_vx, delta_vy, delta_vz
             0.01, 0.01]) # delta_wx, delta_wy
         
         # cost matrix for the action
