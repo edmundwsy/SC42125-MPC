@@ -30,7 +30,7 @@ def run_mpc(env):
         t = env.sim_dt * n
         _, _, _, info = env.step()
         t_now = time.time()
-        print('relapsed time:', t_now - t0)
+        print(t_now - t0)
 	    #
         t0 = time.time()
         #

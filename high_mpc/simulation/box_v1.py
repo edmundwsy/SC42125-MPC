@@ -78,6 +78,47 @@ class box_v1(object):
         
         return plans, pred_traj
 
+    def plan2(self, state, opt_t=1.0, qstate=None):
+        #
+        plans, pred_traj = [], []
+        M = 4
+        DT = self._dt/M
+        #
+        for i in range(self._N):
+            X = state
+            for _ in range(M):
+                k1 = DT * self._f(X)
+                k2 = DT * self._f(X + 0.5 * k1)
+                k3 = DT * self._f(X + 0.5 * k2)
+                k4 = DT * self._f(X + k3)
+                #
+                X = X + (k1 + 2.0*(k2 + k3) + k4)/6.0
+            #
+            state = X
+            cstate = np.zeros(shape=8)
+            cstate[0:3] = self.get_position(state)
+            cstate[3:6] = self.get_veloctiy(state) 
+            cstate[6:8] = self.get_euler(state)[0:2]
+
+            # relative state
+            cstate[2] = cstate[2] - qstate[2]
+            cstate[5] = cstate[5] - qstate[8] # pz* = pz - pbz TODO
+
+            traj_euler_point = self.get_cartesian_state(state, euler=True).tolist()
+            
+            # plan trajectory and optimal time & optimal vx
+            traj_quat_point = cstate.tolist()
+            # traj_quat_point[kPosX] = opt_vx
+            
+            current_t = i * self._dt
+            plan_i = traj_quat_point + [current_t, opt_t, self.sigma]
+    
+            #
+            plans += plan_i
+            pred_traj.append(traj_euler_point)
+        
+        return plans, pred_traj
+
     def _f(self, state):
         #
         theta = state[0]

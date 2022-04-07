@@ -1,10 +1,10 @@
 import numpy as np
 #
-from high_mpc.simulation.quadrotor_linear import Quadrotor_v1
+from high_mpc.simulation.quadrotor import Quadrotor_v0
 from high_mpc.simulation.box_v0 import box_v0
-from high_mpc.simulation.box_v2 import box_v2
+from high_mpc.simulation.box_v1 import box_v1
 #
-from high_mpc.common.quad_index_2 import *
+from high_mpc.common.quad_index import *
 
 #
 class Space(object):
@@ -26,8 +26,8 @@ class DynamicGap2(object):
         self.plan_dt = plan_dt
 
         # 
-        self.goal_point = np.array([4.0, 0.0, 0.0]) # quad
-        self.pivot_point = np.array([3.0, 0.0, 5.0])
+        self.goal_point = np.array([5.0,  0.0, 0.0]) 
+        self.pivot_point = np.array([2.0, 0.0, 3.0]) # starting point of the box
 
         # goal state, position, velocity, roll pitch
         self.quad_sT = self.goal_point.tolist() + [0.0, 0.0, 0.0] + [0.0, 0.0] 
@@ -37,10 +37,10 @@ class DynamicGap2(object):
         self.sim_dt = 0.02  # simulation time step
         self.max_episode_steps = int(self.sim_T/self.sim_dt)
         # Simulators, a quadrotor and a pendulum
-        self.quad = Quadrotor_v1(dt=self.sim_dt)
+        self.quad = Quadrotor_v0(dt=self.sim_dt)
         self.pend = box_v0(self.pivot_point, dt=self.sim_dt)
 
-        self.planner = box_v2(pivot_point=self.pivot_point, sigma=10, \
+        self.planner = box_v1(pivot_point=self.pivot_point, sigma=10, \
             T=self.plan_T, dt=self.plan_dt)
     
 
@@ -73,9 +73,8 @@ class DynamicGap2(object):
         
         # observation, can be part of the state, e.g., postion
         # or a cartesian representation of the state
-        quad_obs = self.quad.get_cartesian_state() # quad
+        quad_obs = self.quad.get_cartesian_state()
         pend_obs = self.pend.get_cartesian_state()
-        quad_obs[kPosZ] = quad_obs[kPosZ]+pend_obs[kPosZ] # TODO
         #
         obs = (quad_obs - pend_obs).tolist()
         
@@ -86,19 +85,23 @@ class DynamicGap2(object):
         opt_t = u
         
         #
-        plan_pend_traj, pred_pend_traj_cart = self.planner.plan(self.pend_state, opt_t) #TODO
+        plan_pend_traj, pred_pend_traj_cart = self.planner.plan2(self.pend_state, opt_t, self.quad.get_cartesian_state()) # predict relative pend traj, cartesian pend traj
         pred_pend_traj_cart = np.array(pred_pend_traj_cart)
-        print(plan_pend_traj)
         
         #
-        quad_s0 = self.quad_state.tolist()
-        ref_traj = quad_s0 + plan_pend_traj + self.quad_sT
+        quad_s0 = self.quad.get_linear_state(self.pend.get_cartesian_state()).tolist()
+        ref_traj = quad_s0 + plan_pend_traj + self.quad_sT # in mpc state, 8d+3
 
         # run nonliear model predictive control
-        quad_act, pred_traj = self.mpc.solve(ref_traj)
-        # print(pred_traj[:,kPosZ])
-        # print(quad_act)
-        pred_traj[:,kPosZ] += self.pend.get_cartesian_state()[kPosZ]
+        quad_act, pred_traj = self.mpc.solve(ref_traj) # in relative frame
+        # back to world frame
+        # print(pred_traj.shape) N*(s_dim+u_dim)
+        pred_traj[:,2] = pred_traj[:,2] + self.pend.get_cartesian_state()[2]
+        # pred_traj[:,5] = pred_traj[:,5] + self.pend.get_cartesian_state()[8]
+        # pred_traj_temp = pred_traj[:,3:6]
+        # pred_traj[:,3:5] = pred_traj[:,6:8]
+        # pred_traj[:,5] = pred_traj[:,5]*0.0
+        # pred_traj[:,6:9] = pred_traj_temp
 
         # run the actual control command on the quadrotor
         self.quad_state = self.quad.run(quad_act)
@@ -108,13 +111,12 @@ class DynamicGap2(object):
         # update the observation.
         quad_obs = self.quad.get_cartesian_state()
         pend_obs = self.pend.get_cartesian_state()
-        quad_obs[kPosZ] = quad_obs[kPosZ]+pend_obs[kPosZ] # TODO
         obs = (quad_obs - pend_obs).tolist()
         #
         info = {
             "quad_obs": quad_obs, 
             "quad_act": quad_act, 
-            "quad_axes": self.quad.get_axes(p_bz=pend_obs[kPosZ]),
+            "quad_axes": self.quad.get_axes(),
             "pend_obs": pend_obs,
             "pend_corners": self.pend.get_3d_corners(),
             "pred_quad_traj": pred_traj, 
@@ -126,33 +128,33 @@ class DynamicGap2(object):
 
         return obs, 0, done, info
     
-    def episode(self, u):
-        opt_t = u
-        #
-        plan_pend_traj, pred_pend_traj_cart = self.planner.plan(self.pend_state, opt_t)
-        pred_pend_traj_cart = np.array(pred_pend_traj_cart)
+    # def episode(self, u):
+    #     opt_t = u
+    #     #
+    #     plan_pend_traj, pred_pend_traj_cart = self.planner.plan(self.pend_state, opt_t)
+    #     pred_pend_traj_cart = np.array(pred_pend_traj_cart)
         
-        #
-        quad_s0 = self.quad_state.tolist()
-        ref_traj = quad_s0 + plan_pend_traj + self.quad_sT
+    #     #
+    #     quad_s0 = self.quad_state.tolist()
+    #     ref_traj = quad_s0 + plan_pend_traj + self.quad_sT
     
-        _, pred_traj = self.mpc.solve(ref_traj)
+    #     _, pred_traj = self.mpc.solve(ref_traj)
         
-        opt_node = np.clip( int(opt_t/self.plan_dt), 0, pred_traj.shape[0]-1)
-        # if quad_s0[kPosX] >= self.pivot_point[kPosX]+0.5:
-        #     # obs = self.reset()
-        #     loss = np.linalg.norm(pred_traj[opt_node, kPosX:kPosZ+1] - np.tile(self.goal_point, (pred_traj.shape[0], 1)))
-        #     rew = - np.mean(loss)             
-        # else:    
-        opt_min = np.clip(opt_node-10, 0, pred_traj.shape[0]-1)
-        opt_max = np.clip(opt_node+5, 0, pred_traj.shape[0]-1)
-        # opt_min = np.clip(opt_node-1, 0, pred_traj.shape[0]-1)
-        # opt_max = np.clip(opt_node+1, 0, pred_traj.shape[0]-1)
-        #
-        loss = np.linalg.norm(pred_traj[opt_min:opt_max, kPosX:kPosZ+1]  - pred_pend_traj_cart[opt_min:opt_max, kPosX:kPosZ+1])
-        rew = - loss
-        #    
-        return rew, opt_node
+    #     opt_node = np.clip( int(opt_t/self.plan_dt), 0, pred_traj.shape[0]-1)
+    #     # if quad_s0[kPosX] >= self.pivot_point[kPosX]+0.5:
+    #     #     # obs = self.reset()
+    #     #     loss = np.linalg.norm(pred_traj[opt_node, kPosX:kPosZ+1] - np.tile(self.goal_point, (pred_traj.shape[0], 1)))
+    #     #     rew = - np.mean(loss)             
+    #     # else:    
+    #     opt_min = np.clip(opt_node-10, 0, pred_traj.shape[0]-1)
+    #     opt_max = np.clip(opt_node+5, 0, pred_traj.shape[0]-1)
+    #     # opt_min = np.clip(opt_node-1, 0, pred_traj.shape[0]-1)
+    #     # opt_max = np.clip(opt_node+1, 0, pred_traj.shape[0]-1)
+    #     #
+    #     loss = np.linalg.norm(pred_traj[opt_min:opt_max, kPosX:kPosZ+1]  - pred_pend_traj_cart[opt_min:opt_max, kPosX:kPosZ+1])
+    #     rew = - loss
+    #     #    
+    #     return rew, opt_node
     
     @staticmethod
     def _is_within_gap(gap_corners, point):

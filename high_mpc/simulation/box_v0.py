@@ -41,8 +41,8 @@ class box_v0(object):
         self._state = np.zeros(shape=self.s_dim)
         
         # initial state
-        self._theta_box = np.array([-0.5, 0.5])
-        self._dot_theta_box = np.array([-0.1, 0.1])
+        # self._theta_box = np.array([-0.5, 0.5])
+        # self._dot_theta_box = np.array([-0.1, 0.1])
 
         # self._theta_box = np.array([0.5, 0.5]) * self._pi
         # self._dot_theta_box = np.array([-0.0, 0.0]) * self._pi
@@ -78,14 +78,13 @@ class box_v0(object):
     #     self.length4 = self.length3
     #     self.delta_theta4 = -self.delta_theta3
         
-    def reset(self, init_theta=None):
-        if init_theta is not None:
-            self._state[kTheta] = init_theta
+    def reset(self, init=None):
+        if init is not None:
+            self._state[kTheta] = init[0]
+            self._state[kDotTheta] = init[1]
         else:
-            self._state[kTheta] = np.random.uniform( \
-                low=self._theta_box[0], high=self._theta_box[1])
-        self._state[kDotTheta] = np.random.uniform( \
-            low=self._dot_theta_box[0], high=self._dot_theta_box[1])
+            self._state[kTheta] = 0
+            self._state[kDotTheta] = -5
         #
         self._t = 0.0
         # print("init pendulum: ", self._state)
@@ -108,6 +107,7 @@ class box_v0(object):
             X = X + (k1 + 2.0*(k2 + k3) + k4)/6.0
         #
         self._state = X
+        # print(self._state)
         return self._state
 
     def _f(self, state):
@@ -139,7 +139,7 @@ class box_v0(object):
         vel = np.zeros(shape=3)
         vel[0] = 0.0
         vel[1] = 0.0
-        vel[2] = kDotTheta
+        vel[2] = self._state[kDotTheta]
         return vel
 
     def get_euler(self,):
@@ -297,7 +297,7 @@ if __name__ == "__main__":
     dt = 0.02
     tf = 20.0
     #
-    pivot = [2.0, 2.0, 2.0] # x, y, z
+    pivot = [2.0, 2.0, 100.0] # x, y, z
 
     # # # # # # # # # # # # # # # # # # #
     # -- test Pendulum v0

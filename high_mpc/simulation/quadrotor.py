@@ -44,26 +44,40 @@ class Quadrotor_v0(object):
         self._state = np.zeros(shape=self.s_dim)
         self._state[kQuatW] = 1.0 # 
         #
-        # initialize position, randomly
-        self._state[kPosX] = np.random.uniform(
-            low=self._xyz_dist[0, 0], high=self._xyz_dist[0, 1])
-        self._state[kPosY] = np.random.uniform(
-            low=self._xyz_dist[1, 0], high=self._xyz_dist[1, 1])
-        self._state[kPosZ] = np.random.uniform(
-            low=self._xyz_dist[2, 0], high=self._xyz_dist[2, 1])
+        # # initialize position, randomly
+        # self._state[kPosX] = np.random.uniform(
+        #     low=self._xyz_dist[0, 0], high=self._xyz_dist[0, 1])
+        # self._state[kPosY] = np.random.uniform(
+        #     low=self._xyz_dist[1, 0], high=self._xyz_dist[1, 1])
+        # self._state[kPosZ] = np.random.uniform(
+        #     low=self._xyz_dist[2, 0], high=self._xyz_dist[2, 1])
         
-        # initialize rotation, randomly
-        quad_quat0 = np.random.uniform(low=0.0, high=1, size=4)
+        # # initialize rotation, randomly
+        # quad_quat0 = np.random.uniform(low=0.0, high=1, size=4)
+        # # normalize the quaternion
+        # self._state[kQuatW:kQuatZ+1] = quad_quat0 / np.linalg.norm(quad_quat0)
+        
+        # # initialize velocity, randomly
+        # self._state[kVelX] = np.random.uniform(
+        #     low=self._vxyz_dist[0, 0], high=self._vxyz_dist[0, 1])
+        # self._state[kVelY] = np.random.uniform(
+        #     low=self._vxyz_dist[1, 0], high=self._vxyz_dist[1, 1])
+        # self._state[kVelZ] = np.random.uniform(
+        #     low=self._vxyz_dist[2, 0], high=self._vxyz_dist[2, 1])
+        #
+
+        # initialize position, randomly
+        self._state[kPosX] = -2
+        self._state[kPosY] = 0
+        self._state[kPosZ] = 2
+        
         # normalize the quaternion
-        self._state[kQuatW:kQuatZ+1] = quad_quat0 / np.linalg.norm(quad_quat0)
+        self._state[kQuatW:kQuatZ+1] = np.array([1,0,0,0])
         
         # initialize velocity, randomly
-        self._state[kVelX] = np.random.uniform(
-            low=self._vxyz_dist[0, 0], high=self._vxyz_dist[0, 1])
-        self._state[kVelY] = np.random.uniform(
-            low=self._vxyz_dist[1, 0], high=self._vxyz_dist[1, 1])
-        self._state[kVelZ] = np.random.uniform(
-            low=self._vxyz_dist[2, 0], high=self._vxyz_dist[2, 1])
+        self._state[kVelX] = 0
+        self._state[kVelY] = 0
+        self._state[kVelZ] = 0
         #
         return self._state
 
@@ -131,6 +145,19 @@ class Quadrotor_v0(object):
         cartesian_state[0:3] = self.get_position()
         cartesian_state[3:6] = self.get_euler()
         cartesian_state[6:9] = self.get_velocity()
+        return cartesian_state
+    
+    def get_linear_state(self, pend_state=np.zeros(shape=9)):
+        """
+        Get the Full state in Cartesian coordinates
+        """
+        cartesian_state = np.zeros(shape=8)
+        cartesian_state[0:3] = self.get_position()        
+        cartesian_state[3:6] = self.get_velocity()
+        cartesian_state[6:8] = self.get_euler()[0:2]
+
+        cartesian_state[2] = cartesian_state[2] - pend_state[2]
+        cartesian_state[5] = cartesian_state[5] - pend_state[8] # note here, pend_state[8] is velz of pendulum TODO
         return cartesian_state
     
     def get_position(self,):

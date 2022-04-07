@@ -101,18 +101,18 @@ class SimVisual(object):
         self.l_quad_pred_traj, = self.ax_3d.plot([], [], [], 'r*')
         self.l_pend_pred_traj, = self.ax_3d.plot([], [], [], 'k*')
         #
-        self.l_pend, = self.ax_3d.plot([], [], [], 'r', linewidth=0)
-        self.l_pend_edge1, = self.ax_3d.plot([], [], [], 'b', linewidth=2)
-        self.l_pend_edge2, = self.ax_3d.plot([], [], [], 'b', linewidth=2)
-        self.l_pend_edge3, = self.ax_3d.plot([], [], [], 'b', linewidth=2)
-        self.l_pend_edge4, = self.ax_3d.plot([], [], [], 'b', linewidth=2)
+        self.l_pend, = self.ax_3d.plot([], [], [], 'ro')
+        self.l_pend_edge1, = self.ax_3d.plot([], [], [], 'b', linewidth=0)
+        self.l_pend_edge2, = self.ax_3d.plot([], [], [], 'b', linewidth=0)
+        self.l_pend_edge3, = self.ax_3d.plot([], [], [], 'b', linewidth=0)
+        self.l_pend_edge4, = self.ax_3d.plot([], [], [], 'b', linewidth=0)
         #
         self.l_quad_x, = self.ax_3d.plot([], [], [], 'r', linewidth=3)
         self.l_quad_y, = self.ax_3d.plot([], [], [], 'g', linewidth=3)
         self.l_quad_z, = self.ax_3d.plot([], [], [], 'b', linewidth=3)
         
         #
-        self.ax_3d.scatter(self.pivot_point[0], self.pivot_point[1], self.pivot_point[2], marker='o', color='r')
+        self.ax_3d.scatter(self.pivot_point[0], self.pivot_point[1], self.pivot_point[2], marker='o', color='g')
         self.ax_3d.scatter(self.goal_point[0], self.goal_point[1], self.goal_point[2], marker='o', color='r', s=5)
         self.ax_3d.view_init(elev=20, azim=110)
         # Draw a circle on the x=0 'wall'
@@ -286,8 +286,8 @@ class SimVisual(object):
                 self.l_pend_pred_traj.set_3d_properties(np.array([pred_pend_traj[opt_idx, 2]]))
             
             #
-            self.l_pend.set_data([self.pivot_point[0], pend_obs[kPosX]], [self.pivot_point[1], pend_obs[kPosY]] )
-            self.l_pend.set_3d_properties([self.pivot_point[2], pend_obs[kPosZ]])
+            self.l_pend.set_data([pend_obs[kPosX]], [pend_obs[kPosY]] )
+            self.l_pend.set_3d_properties([pend_obs[kPosZ]])
                      
             c1, c2, c3, c4 = pend_corners
             #

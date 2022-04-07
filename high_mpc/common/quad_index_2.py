@@ -7,6 +7,8 @@ kVelY = 4
 kVelZ = 5
 kTheta = 6
 kPhi = 7
+kH = 8
+kVelH = 9
 
 # action index
 kThrust = 0

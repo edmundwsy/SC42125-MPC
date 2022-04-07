@@ -49,9 +49,9 @@ class MPC(object):
 
         # cost matrix for tracking the pendulum motion
         self._Q_pen = np.diag([
-            0, 0, 10,  # delta_x, delta_y, delta_z
+            0, 0, 0,  # delta_x, delta_y, delta_z
             0, 0, 0, 0, # delta_qw, delta_qx, delta_qy, delta_qz
-            0, 0, 10]) # delta_vx, delta_vy, delta_vz
+            0, 0, 0]) # delta_vx, delta_vy, delta_vz
         
         # cost matrix for the action
         self._Q_u = np.diag([0.1, 0.1, 0.1, 0.1]) # T, wx, wy, wz
