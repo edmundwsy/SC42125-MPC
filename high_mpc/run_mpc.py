@@ -72,7 +72,6 @@ def run_mpc(env):
 
                 temp_list.append(info["cost"])
 
-                # print(temp_list
                 # calculate costs
 
                 Q = np.diag([100, 100, 100, 0.01, 0.01, 0.01, 0.01, 0.01])

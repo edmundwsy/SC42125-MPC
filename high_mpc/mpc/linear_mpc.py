@@ -32,6 +32,7 @@ class MPC2(object):
         self._w_max_xy = 3.0
         self._thrust_min = 0.0
         self._thrust_max = 30.0
+        self._euler_bound = np.pi/4
 
         #
         # state dimension (px, py, pz,           # quadrotor position
@@ -166,6 +167,10 @@ class MPC2(object):
         x_bound = ca.inf
         x_min = [-x_bound for _ in range(self._s_dim)]
         x_max = [+x_bound for _ in range(self._s_dim)]
+        x_min[6] = -self._euler_bound
+        x_min[7] = -self._euler_bound
+        x_max[6] = +self._euler_bound
+        x_max[7] = +self._euler_bound
         #
         g_min = [0 for _ in range(self._s_dim)]
         g_max = [0 for _ in range(self._s_dim)]

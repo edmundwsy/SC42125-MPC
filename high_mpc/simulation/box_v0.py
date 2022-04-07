@@ -178,6 +178,41 @@ class box_v0(object):
         x = self.pivot_point[0]
         corners_3d = [[x, y1, z1], [x, y2, z2 ], [x, y3, z3 ], [x, y4, z4]]
         return corners_3d
+    
+    def run2_cart(self,):
+        self._t = self._t + self._dt
+        
+        # rk4 int
+        M = 4
+        DT = self._dt/M
+        temp = self._state
+        X = self._state
+        for _ in range(M):
+            k1 = DT * self._f(X)
+            k2 = DT * self._f(X + 0.5 * k1)
+            k3 = DT * self._f(X + 0.5 * k2)
+            k4 = DT * self._f(X + k3)
+            #
+            X = X + (k1 + 2.0*(k2 + k3) + k4)/6.0
+        #
+        # print(self._state)
+        self._state = X
+
+        X = self._state
+        for _ in range(M):
+            k1 = DT * self._f(X)
+            k2 = DT * self._f(X + 0.5 * k1)
+            k3 = DT * self._f(X + 0.5 * k2)
+            k4 = DT * self._f(X + k3)
+            #
+            X = X + (k1 + 2.0*(k2 + k3) + k4)/6.0
+        #
+        # print(self._state)
+        self._state = X
+
+        cart = self.get_cartesian_state()
+        self._state = temp
+        return cart
 
 
 # class box_v1(object):

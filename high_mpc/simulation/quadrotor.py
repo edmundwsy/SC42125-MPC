@@ -67,7 +67,7 @@ class Quadrotor_v0(object):
         #
 
         # initialize position, randomly
-        self._state[kPosX] = -5
+        self._state[kPosX] = -0.3
         self._state[kPosY] = 0
         self._state[kPosZ] = 0
         

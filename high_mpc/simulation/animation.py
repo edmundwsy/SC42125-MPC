@@ -58,9 +58,9 @@ class SimVisual(object):
 
         #
         self.ax_3d = self.fig.add_subplot(self.gs[1:, 3:], projection='3d')
-        self.ax_3d.set_xlim([-4, 5])
-        self.ax_3d.set_ylim([-2, 2])
-        self.ax_3d.set_zlim([ 0, 4])
+        self.ax_3d.set_xlim([-1, 1])
+        self.ax_3d.set_ylim([-1, 1])
+        self.ax_3d.set_zlim([-1, 1])
         self.ax_3d.set_xlabel("x")
         self.ax_3d.set_ylabel("y")
         self.ax_3d.set_zlabel("z")
