@@ -42,29 +42,35 @@ class Quadrotor_v0(object):
     
     def reset(self):
         self._state = np.zeros(shape=self.s_dim)
-        self._state[kQuatW] = 1.0 # 
+        # self._state[kQuatW] = 1.0 # 
         #
         # initialize position, randomly
-        self._state[kPosX] = np.random.uniform(
-            low=self._xyz_dist[0, 0], high=self._xyz_dist[0, 1])
-        self._state[kPosY] = np.random.uniform(
-            low=self._xyz_dist[1, 0], high=self._xyz_dist[1, 1])
-        self._state[kPosZ] = np.random.uniform(
-            low=self._xyz_dist[2, 0], high=self._xyz_dist[2, 1])
+        # self._state[kPosX] = np.random.uniform(
+        #     low=self._xyz_dist[0, 0], high=self._xyz_dist[0, 1])
+        # self._state[kPosY] = np.random.uniform(
+        #     low=self._xyz_dist[1, 0], high=self._xyz_dist[1, 1])
+        # self._state[kPosZ] = np.random.uniform(
+        #     low=self._xyz_dist[2, 0], high=self._xyz_dist[2, 1])
         
         # initialize rotation, randomly
-        quad_quat0 = np.random.uniform(low=0.0, high=1, size=4)
+        # quad_quat0 = np.random.uniform(low=0.0, high=1, size=4)
         # normalize the quaternion
-        self._state[kQuatW:kQuatZ+1] = quad_quat0 / np.linalg.norm(quad_quat0)
+        # self._state[kQuatW:kQuatZ+1] = quad_quat0 / np.linalg.norm(quad_quat0)
         
         # initialize velocity, randomly
-        self._state[kVelX] = np.random.uniform(
-            low=self._vxyz_dist[0, 0], high=self._vxyz_dist[0, 1])
-        self._state[kVelY] = np.random.uniform(
-            low=self._vxyz_dist[1, 0], high=self._vxyz_dist[1, 1])
-        self._state[kVelZ] = np.random.uniform(
-            low=self._vxyz_dist[2, 0], high=self._vxyz_dist[2, 1])
-        #
+        # self._state[kVelX] = np.random.uniform(
+        #     low=self._vxyz_dist[0, 0], high=self._vxyz_dist[0, 1])
+        # self._state[kVelY] = np.random.uniform(
+        #     low=self._vxyz_dist[1, 0], high=self._vxyz_dist[1, 1])
+        # self._state[kVelZ] = np.random.uniform(
+        #     low=self._vxyz_dist[2, 0], high=self._vxyz_dist[2, 1])
+        self._state[kPosX] = -5.0
+        self._state[kPosY] = 0.0
+        self._state[kPosZ] = 0.0
+        self._state[kQuatW:kQuatZ+1] = np.array([1.0, 0.0, 0.0, 0.0])
+        self._state[kVelX] = 0.0
+        self._state[kVelY] = 0.0
+        self._state[kVelZ] = 0.0
         return self._state
 
     def run(self, action):
