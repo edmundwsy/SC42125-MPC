@@ -109,7 +109,7 @@ class DynamicGap2(object):
 
         # ------------------------------------------------------------
         # run liear model predictive control
-        quad_act, pred_traj = self.mpc.solve(quad_s0) # in relative frame
+        quad_act, pred_traj, cost = self.mpc.solve(quad_s0) # in relative frame
         # ------------------------------------------------------------
         
         # back to world frame
@@ -142,7 +142,9 @@ class DynamicGap2(object):
             "pend_corners": self.pend.get_3d_corners(),
             "pred_quad_traj": pred_traj, 
             "pred_pend_traj": pred_pend_traj_cart, 
-            "opt_t": opt_t, "plan_dt": self.plan_dt}
+            "opt_t": opt_t, "plan_dt": self.plan_dt,
+            "quad_s0": quad_s0,
+            "cost": cost}
         done = False
         if self.t >= (self.sim_T-self.sim_dt):
             done = True

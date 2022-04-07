@@ -14,6 +14,8 @@ from high_mpc.simulation.dynamic_gap_linear import DynamicGap2
 from high_mpc.mpc.mpc import MPC
 from high_mpc.mpc.linear_mpc import MPC2
 from high_mpc.simulation.animation import SimVisual
+
+import csv
 #
 def arg_parser():
     parser = argparse.ArgumentParser()
@@ -26,19 +28,51 @@ def run_mpc(env):
     env.reset()
     t, n = 0, 0
     t0 = time.time()
-    while t < env.sim_T:
-        t = env.sim_dt * n
-        _, _, _, info = env.step()
-        t_now = time.time()
-        print(t_now - t0)
-	    #
-        t0 = time.time()
-        #
-        n += 1
-        update = False
-        if t>= env.sim_T:
-            update = True
-        yield [info, t, update]
+    csv_file = "Names.csv"
+    try:
+        # print(info)
+        with open(csv_file, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            t_temp = 0
+            while t < env.sim_T:
+                t = env.sim_dt * n
+                _, _, _, info = env.step()
+                t_now = time.time()
+                t_temp += t_now - t0
+                print(t_now - t0)
+                #
+                t0 = time.time()
+                #
+                n += 1
+                update = False
+                if t>= env.sim_T:
+                    update = True
+                yield [info, t, update]
+                temp_list = []
+                temp_list.extend(info["quad_obs"]) 
+
+                flat_list = [item for sublist in info["quad_act"] for item in sublist]
+                temp_list.extend(flat_list)
+
+                temp_list.extend(info["pend_obs"])
+
+                # flat_list = [item for sublist in info["pred_quad_traj"] for item in sublist]
+                # temp_list.extend(flat_list)
+
+                # flat_list = [item for sublist in info["pred_pend_traj"] for item in sublist]
+                # temp_list.extend(flat_list)
+
+                temp_list.extend(info["quad_s0"])
+
+                temp_list.append(t_temp)
+
+                temp_list.append(info["cost"])
+
+                # print(temp_list)
+
+                writer.writerow(temp_list)
+    except IOError:
+        print("I/O error")
 
 def main():
     #
