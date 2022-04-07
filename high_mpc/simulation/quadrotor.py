@@ -67,9 +67,9 @@ class Quadrotor_v0(object):
         #
 
         # initialize position, randomly
-        self._state[kPosX] = -2
+        self._state[kPosX] = -5
         self._state[kPosY] = 0
-        self._state[kPosZ] = 2
+        self._state[kPosZ] = 0
         
         # normalize the quaternion
         self._state[kQuatW:kQuatZ+1] = np.array([1,0,0,0])
@@ -238,3 +238,5 @@ class Quadrotor_v0(object):
         euler_y = -np.arcsin(2*quat_x*quat_z - 2*quat_w*quat_y)
         euler_z = np.arctan2(2*quat_w*quat_z+2*quat_x*quat_y, quat_w*quat_w + quat_x*quat_x - quat_y*quat_y - quat_z*quat_z)
         return [euler_x, euler_y, euler_z]
+
+

@@ -42,36 +42,51 @@ class Quadrotor_v1(object):
         # self._t = 0.0
     
     def reset(self):
-        self._state = np.zeros(shape=self.s_dim)
-        self._state[kTheta] = 0.0
-        self._state[kPhi] = 0.0
-        #
-        # initialize position, randomly
-        self._state[kPosX] = np.random.uniform(
-            low=self._xyz_dist[0, 0], high=self._xyz_dist[0, 1])
-        self._state[kPosY] = np.random.uniform(
-            low=self._xyz_dist[1, 0], high=self._xyz_dist[1, 1])
-        self._state[kPosZ] = np.random.uniform(
-            low=self._xyz_dist[2, 0], high=self._xyz_dist[2, 1])
+        # self._state = np.zeros(shape=self.s_dim)
+        # self._state[kTheta] = 0.0
+        # self._state[kPhi] = 0.0
+        # #
+        # # initialize position, randomly
+        # self._state[kPosX] = np.random.uniform(
+        #     low=self._xyz_dist[0, 0], high=self._xyz_dist[0, 1])
+        # self._state[kPosY] = np.random.uniform(
+        #     low=self._xyz_dist[1, 0], high=self._xyz_dist[1, 1])
+        # self._state[kPosZ] = np.random.uniform(
+        #     low=self._xyz_dist[2, 0], high=self._xyz_dist[2, 1])
         
-        # initialize rotation, randomly
-        self._state[kTheta:kPhi+1] = np.random.uniform(low=0.0, high=1, size=2) * 2*np.pi
+        # # initialize rotation, randomly
+        # self._state[kTheta:kPhi+1] = np.random.uniform(low=0.0, high=1, size=2) * 2*np.pi
         
-        # initialize velocity, randomly
-        self._state[kVelX] = np.random.uniform(
-            low=self._vxyz_dist[0, 0], high=self._vxyz_dist[0, 1])
-        self._state[kVelY] = np.random.uniform(
-            low=self._vxyz_dist[1, 0], high=self._vxyz_dist[1, 1])
-        self._state[kVelZ] = np.random.uniform(
-            low=self._vxyz_dist[2, 0], high=self._vxyz_dist[2, 1])
-        #
+        # # initialize velocity, randomly
+        # self._state[kVelX] = np.random.uniform(
+        #     low=self._vxyz_dist[0, 0], high=self._vxyz_dist[0, 1])
+        # self._state[kVelY] = np.random.uniform(
+        #     low=self._vxyz_dist[1, 0], high=self._vxyz_dist[1, 1])
+        # self._state[kVelZ] = np.random.uniform(
+        #     low=self._vxyz_dist[2, 0], high=self._vxyz_dist[2, 1])
+        # #
 
-        # initialize velocity, randomly
-        self._state[kH] = np.random.uniform(
-            low=2, high=5)
-        self._state[kVelH] = np.random.uniform(
-            low=-1, high=1)
+        # # initialize velocity, randomly
+        # self._state[kH] = np.random.uniform(
+        #     low=2, high=5)
+        # self._state[kVelH] = np.random.uniform(
+        #     low=-1, high=1)
+
+        # initialize position, randomly
+        self._state[kPosX] = -2
+        self._state[kPosY] = 0
+        self._state[kPosZ] = 2
         
+        # normalize the quaternion
+        self._state[kTheta] = 0
+        self._state[kPhi] = 0
+        
+        # initialize velocity, randomly
+        self._state[kVelX] = 0
+        self._state[kVelY] = 0
+        self._state[kVelZ] = 0
+        #
+        return self._state
         return self._state
 
     def run(self, action):

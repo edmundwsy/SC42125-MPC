@@ -29,7 +29,7 @@ class MPC2(object):
 
         # Quadrotor constant
         self._w_max_yaw = 6.0
-        self._w_max_xy = 1.0
+        self._w_max_xy = 3.0
         self._thrust_min = 0.0
         self._thrust_max = 30.0
 
@@ -44,8 +44,8 @@ class MPC2(object):
         # cost matrix for tracking the goal point
         self._Q = np.diag([
             100, 100, 100,  # delta_x, delta_y, delta_z
-            10, 10, 10, # delta_vx, delta_vy, delta_vz
-            10, 10]) # delta_wx, delta_wy
+            0.01, 0.01, 0.01, # delta_vx, delta_vy, delta_vz
+            0.1, 0.1]) # delta_wx, delta_wy
         
         # cost matrix for the action
         self._R = np.diag([0.1, 0.1, 0.1, 0.1]) # T, wx, wy, wz
@@ -68,7 +68,7 @@ class MPC2(object):
         vx, vy, vz = ca.SX.sym('vx'), ca.SX.sym('vy'), ca.SX.sym('vz')
 
         # -- conctenated vector
-        self._x = ca.vertcat(px, py, pz, vx, vy, vz, pitch, roll) 
+        self._x = ca.vertcat(px, py, pz, vx, vy, vz, roll, pitch) 
 
         # # # # # # # # # # # # # # # # # # # 
         # --------- Control Command ------------
@@ -88,8 +88,8 @@ class MPC2(object):
             vx,
             vy,
             vz,
-            - self._gz * pitch,
-            - self._gz * roll,
+            self._gz * pitch,
+            self._gz * roll,
             thrust,
             wr,
             wp
@@ -251,8 +251,7 @@ class MPC2(object):
         self.nlp_w0 = list(sol_x0[self._s_dim+self._u_dim:2*(self._s_dim+self._u_dim)]) + list(sol_x0[self._s_dim+self._u_dim:])
         
         #
-        print("SOLUTION SHAPE", sol_x0.shape)
-        print("OPTIMAL CONTROL", opt_u.transpose())
+        print("OPTIMAL CONTROL", opt_u.transpose()[0])
         print("Current state", sol_x0[:self._s_dim].transpose())
         x0_array = np.reshape(sol_x0[:-self._s_dim], newshape=(-1, self._s_dim+self._u_dim))
         

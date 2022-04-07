@@ -27,7 +27,7 @@ class DynamicGap2(object):
 
         # 
         self.goal_point = np.array([5.0,  0.0, 0.0]) 
-        self.pivot_point = np.array([2.0, 0.0, 3.0]) # starting point of the box
+        self.pivot_point = np.array([0.0, 0.0, 5.0]) # starting point of the box
 
         # goal state, position, velocity, roll pitch
         self.quad_sT = self.goal_point.tolist() + [0.0, 0.0, 0.0] + [0.0, 0.0] 
@@ -92,18 +92,19 @@ class DynamicGap2(object):
         #
         quad_state = self.quad.get_cartesian_state()
         pend_state = self.pend.get_cartesian_state()
+        # pend_state = np.array([0, 0, 3, 0, 0, 0, 0, 0, 0])
         quad_s0 = np.zeros(8)
         quad_s0[0:3] = quad_state[0:3] - pend_state[0:3]  # relative position
         quad_s0[3:6] = quad_state[6:9] + pend_state[6:9]  # relative velocity # TODO -5
         quad_s0[6:8] = quad_state[3:5]
         quad_s0 = quad_s0.tolist()
         
-        print("quad_s0 pos", quad_s0[0:3])
-        print("quad_s0 vel", quad_s0[3:6])
-        print("quad_s0 rpy", quad_s0[6:8])
-        print("quad state rpy", quad_state[3:6])
+        # print("quad_s0 pos", quad_s0[0:3])
+        # print("quad_s0 vel", quad_s0[3:6])
+        # print("quad_s0 rpy", quad_s0[6:8])
         print("quad state vel", quad_state[6:9])
         print("pend state vel", pend_state[6:9])
+        print("quad state rpy", quad_state[3:6])
         # ref_traj = quad_s0 + plan_pend_traj + self.quad_sT # in mpc state, 8d+3
 
         # ------------------------------------------------------------
@@ -113,20 +114,24 @@ class DynamicGap2(object):
         
         # back to world frame
         pred_traj[:,0:3] = pred_traj[:,0:3] + self.pend.get_cartesian_state()[0:3]
-        # pred_traj[:,5] = pred_traj[:,5] + self.pend.get_cartesian_state()[8]
-        # pred_traj_temp = pred_traj[:,3:6]
-        # pred_traj[:,3:5] = pred_traj[:,6:8]
-        # pred_traj[:,5] = pred_traj[:,5]*0.0
-        # pred_traj[:,6:9] = pred_traj_temp
-
+        
         # run the actual control command on the quadrotor
+        # if (quad_state[4] > 0.5):
+        #     quad_act = np.array([12, 0, 0, 0])
+        # else:
+        #     quad_act = np.array([9.81, 0, 1.0, 0])
+        
+        
         self.quad_state = self.quad.run(quad_act)
         # simulate one step pendulum
         self.pend_state = self.pend.run()
         
         # update the observation.
         quad_obs = self.quad.get_cartesian_state()
+        print("quad new state pos", quad_obs[0:3])
+        print("quad new state euler", quad_obs[3:6])
         pend_obs = self.pend.get_cartesian_state()
+        
         obs = (quad_obs - pend_obs).tolist()
         #
         info = {
