@@ -25,7 +25,7 @@ def arg_parser():
     return parser
 
 
-def run_mpc(env,write=True):
+def run_mpc(env,write=False):
     #
     env.reset()
     t, n = 0, 0
@@ -43,9 +43,8 @@ def run_mpc(env,write=True):
                     _, _, _, info = env.step()
                     
                     relative_pos = np.array(info['quad_s0'][0:3])
-                    print("Reached the goal:", relative_pos, np.linalg.norm(relative_pos))
+                    print("Caught the ball: ", relative_pos, np.linalg.norm(relative_pos))
                     if np.linalg.norm(relative_pos) < 1e-1/2:
-                        print("!!!!!!!!!!!!!")
                         caught = True
                         break
                     
@@ -69,12 +68,12 @@ def run_mpc(env,write=True):
                                 for item in sublist]
                     temp_list.extend(flat_list)
 
-                    temp_list.extend(info["pend_obs"])
+                    temp_list.extend(info["ball_obs"])
 
                     # flat_list = [item for sublist in info["pred_quad_traj"] for item in sublist]
                     # temp_list.extend(flat_list)
 
-                    # flat_list = [item for sublist in info["pred_pend_traj"] for item in sublist]
+                    # flat_list = [item for sublist in info["pred_ball_traj"] for item in sublist]
                     # temp_list.extend(flat_list)
 
                     temp_list.extend(info["quad_s0"])
@@ -109,6 +108,10 @@ def run_mpc(env,write=True):
                 t = env.sim_dt * n
                 _, _, _, info = env.step()
                 relative_pos = np.array(info['quad_s0'][0:3])
+                print("Caught the ball: ", relative_pos, np.linalg.norm(relative_pos))
+                if np.linalg.norm(relative_pos) < 1e-1/2:
+                        caught = True
+                        break
                 t_now = time.time()
                 # print(t_now - t0)
                 #
@@ -121,7 +124,7 @@ def run_mpc(env,write=True):
                 if np.linalg.norm(relative_pos) < 1e-1:
                         caught = True
                 yield [info, t, update]
-            # print("caught: ", caught)
+            print("caught: ", caught)
     except IOError:
         print("I/O error")
     return caught
@@ -174,11 +177,11 @@ def main():
     ani = animation.FuncAnimation(sim_visual.fig, sim_visual.update, frames=run_frame,
                                   init_func=sim_visual.init_animate, interval=100, blit=True, repeat=False)
 
-    # #
-    # if args.save_video:
-    #     writer = animation.writers["ffmpeg"]
-    #     writer = writer(fps=10, metadata=dict(artist='Me'), bitrate=1800)
-    #     ani.save("MPC_0.mp4", writer=writer)
+    #
+    if args.save_video:
+        writer = animation.writers["ffmpeg"]
+        writer = writer(fps=10, metadata=dict(artist='Me'), bitrate=1800)
+        ani.save("MPC_quad_ball.mp4", writer=writer)
 
     plt.tight_layout()
     plt.show()

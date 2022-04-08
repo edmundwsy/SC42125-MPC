@@ -4,7 +4,7 @@ from scipy.spatial.transform import Rotation as R
 from high_mpc.common.quad_index import *
 
 #
-class Quadrotor_v0(object):
+class Quadrotor(object):
     #
     def __init__(self, dt):
         self.s_dim = 10
@@ -147,7 +147,7 @@ class Quadrotor_v0(object):
         cartesian_state[6:9] = self.get_velocity()
         return cartesian_state
     
-    def get_linear_state(self, pend_state=np.zeros(shape=9)):
+    def get_linear_state(self, ball_state=np.zeros(shape=9)):
         """
         Get the Full state in Cartesian coordinates
         """
@@ -156,8 +156,8 @@ class Quadrotor_v0(object):
         cartesian_state[3:6] = self.get_velocity()
         cartesian_state[6:8] = self.get_euler()[0:2]
 
-        cartesian_state[2] = cartesian_state[2] - pend_state[2]
-        cartesian_state[5] = cartesian_state[5] - pend_state[8] # note here, pend_state[8] is velz of pendulum TODO
+        cartesian_state[2] = cartesian_state[2] - ball_state[2]
+        cartesian_state[5] = cartesian_state[5] - ball_state[8] # note here, ball_state[8] is velz of ball TODO
         return cartesian_state
     
     def get_position(self,):

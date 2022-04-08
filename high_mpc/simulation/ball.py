@@ -1,31 +1,8 @@
-"""
-A Simple Pendulum Gate
-
-# ----------------------
-# p = pivot point
-# c = center
-# 1,2,3,4 = corners
-# ----------------------
-#           p           
-#           |
-#           |
-#           |
-#           |
-#           |
-#           |
-#   2 - - - - - - - 1 
-#   |               |
-#   |       c       |
-#   |               |
-#   4 - - - - - - - 3 
-#
-"""
-
 import numpy as np
 from high_mpc.common.pend_index import *
 from high_mpc.common.util import Point
 
-class ball_v0(object):
+class Ball(object):
     #
     def __init__(self, pivot_point, dt):
         self.s_dim = 2
@@ -305,9 +282,9 @@ if __name__ == "__main__":
     pivot = [2.0, 2.0, 100.0] # x, y, z
 
     # # # # # # # # # # # # # # # # # # #
-    # -- test Pendulum v0
+    # -- test Ball
     # # # # # # # # # # # # # # # # # #
-    env = ball_v0(pivot, dt=0.02)
+    env = Ball(pivot, dt=0.02)
     l_t, l_pos, l_vel, l_theta  = [], [], [], []
     #
     env.reset()

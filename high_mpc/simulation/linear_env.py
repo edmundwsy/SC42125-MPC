@@ -1,7 +1,7 @@
 import numpy as np
 #
-from high_mpc.simulation.quadrotor import Quadrotor_v0
-from high_mpc.simulation.ball_v0 import ball_v0
+from high_mpc.simulation.quadrotor import Quadrotor
+from high_mpc.simulation.ball import Ball
 #
 from high_mpc.common.quad_index import *
 
@@ -38,9 +38,9 @@ class LinearEnv(object):
         self.sim_dt = 0.02      # simulation time step
         self.max_episode_steps = int(self.sim_T/self.sim_dt)
         
-        # Simulators, a quadrotor and a pendulum
-        self.quad = Quadrotor_v0(dt=self.sim_dt)
-        self.ball = ball_v0(self.ball_init_pos, dt=self.sim_dt)
+        # Simulators, a quadrotor and a ball
+        self.quad = Quadrotor(dt=self.sim_dt)
+        self.ball = Ball(self.ball_init_pos, dt=self.sim_dt)
     
         # state space
         self.observation_space = Space(
@@ -87,14 +87,13 @@ class LinearEnv(object):
         #
         quad_state = self.quad.get_cartesian_state()
         ball_state = self.ball.get_cartesian_state()
-        # pend_state = np.array([0, 0, 3, 0, 0, 0, 0, 0, 0])
         quad_s0 = np.zeros(8)
         quad_s0[0:3] = quad_state[0:3] - ball_state[0:3]  # relative position
         quad_s0[3:6] = quad_state[6:9] + ball_state[6:9]  # relative velocity # TODO -5
         quad_s0[6:8] = quad_state[3:5]
         quad_s0 = quad_s0.tolist()
         
-        # ref_traj = quad_s0 + plan_pend_traj + self.quad_sT # in mpc state, 8d+3
+        # ref_traj = quad_s0 + plan_ball_traj + self.quad_sT # in mpc state, 8d+3
 
         # ------------------------------------------------------------
         # run liear model predictive control
@@ -112,25 +111,26 @@ class LinearEnv(object):
         
         
         self.quad_state = self.quad.run(quad_act)
-        # simulate one step pendulum
+        # simulate one step ball
         self.ball_state = self.ball.run()
         
         # update the observation.
         quad_obs = self.quad.get_cartesian_state()
         ball_obs = self.ball.get_cartesian_state()
+        ball_obs[8] = -ball_obs[8]
         
         obs = (quad_obs - ball_obs).tolist()
         
-        pred_pend_traj_cart = pred_traj  # TODO: useless
+        pred_ball_traj_cart = pred_traj  # TODO: useless
         #
         info = {
             "quad_obs": quad_obs, 
             "quad_act": quad_act, 
             "quad_axes": self.quad.get_axes(),
-            "pend_obs": ball_obs,
-            "pend_corners": self.ball.get_3d_corners(),
+            "ball_obs": ball_obs,
+            "ball_corners": self.ball.get_3d_corners(),
             "pred_quad_traj": pred_traj, 
-            "pred_pend_traj": pred_pend_traj_cart, 
+            "pred_ball_traj": pred_ball_traj_cart, 
             "opt_t": opt_t, "plan_dt": self.plan_dt,
             "quad_s0": quad_s0,
             "cost": cost}

@@ -66,28 +66,28 @@ class SimVisual(object):
         
         # Creat "matplotlib lines" for positions.....
         self.l_quad_px, = self.ax_pos.plot([], [], '-r', label='quad_x')
-        self.l_pend_px, = self.ax_pos.plot([], [], '--r', label='pend_x')
+        self.l_ball_px, = self.ax_pos.plot([], [], '--r', label='ball_x')
         self.l_quad_py, = self.ax_pos.plot([], [], '-g', label='quad_y')
-        self.l_pend_py, = self.ax_pos.plot([], [], '--g', label='pend_y')
+        self.l_ball_py, = self.ax_pos.plot([], [], '--g', label='ball_y')
         self.l_quad_pz, = self.ax_pos.plot([], [], '-b', label='quad_z')
-        self.l_pend_pz, = self.ax_pos.plot([], [], '--b', label='pend_z')
+        self.l_ball_pz, = self.ax_pos.plot([], [], '--b', label='ball_z')
         
 
         # Creat "matplotlib lines" for velocity.....
         self.l_quad_vx, = self.ax_vel.plot([], [], '-r', label='quad_vx')
-        self.l_pend_vx, = self.ax_vel.plot([], [], '--r', label='pend_vx')
+        self.l_ball_vx, = self.ax_vel.plot([], [], '--r', label='ball_vx')
         self.l_quad_vy, = self.ax_vel.plot([], [], '-g', label='quad_vy')
-        self.l_pend_vy, = self.ax_vel.plot([], [], '--g', label='pend_vy')
+        self.l_ball_vy, = self.ax_vel.plot([], [], '--g', label='ball_vy')
         self.l_quad_vz, = self.ax_vel.plot([], [], '-b', label='quad_vz')
-        self.l_pend_vz, = self.ax_vel.plot([], [], '--b', label='pend_vz')
+        self.l_ball_vz, = self.ax_vel.plot([], [], '--b', label='ball_vz')
         
         # Creat "matplotlib lines" for attitude.....
         self.l_quad_ax, = self.ax_att.plot([], [], '-r', label='quad_ax')
-        self.l_pend_ax, = self.ax_att.plot([], [], '--r', label='pend_ax')
+        self.l_ball_ax, = self.ax_att.plot([], [], '--r', label='ball_ax')
         self.l_quad_ay, = self.ax_att.plot([], [], '-g', label='quad_ay')
-        self.l_pend_ay, = self.ax_att.plot([], [], '--g', label='pend_ay')
+        self.l_ball_ay, = self.ax_att.plot([], [], '--g', label='ball_ay')
         self.l_quad_az, = self.ax_att.plot([], [], '-b', label='quad_az')
-        self.l_pend_az, = self.ax_att.plot([], [], '--b', label='pend_az')
+        self.l_ball_az, = self.ax_att.plot([], [], '--b', label='ball_az')
 
         # Creat "matplotlib lines" for actions.....
         self.l_quad_thrust, = self.ax_act.plot([], [], '-k', label='quad_thrust')
@@ -98,13 +98,13 @@ class SimVisual(object):
         # Plot 3D coordinates,
         self.l_quad_pos, = self.ax_3d.plot([], [], [], 'b-')
         self.l_quad_pred_traj, = self.ax_3d.plot([], [], [], 'r*', markersize=4)
-        self.l_pend_pred_traj, = self.ax_3d.plot([], [], [], 'k*', markersize=0)
+        self.l_ball_pred_traj, = self.ax_3d.plot([], [], [], 'k*', markersize=0)
         #
-        self.l_pend, = self.ax_3d.plot([], [], [], 'ko')
-        self.l_pend_edge1, = self.ax_3d.plot([], [], [], 'b', linewidth=0)
-        self.l_pend_edge2, = self.ax_3d.plot([], [], [], 'b', linewidth=0)
-        self.l_pend_edge3, = self.ax_3d.plot([], [], [], 'b', linewidth=0)
-        self.l_pend_edge4, = self.ax_3d.plot([], [], [], 'b', linewidth=0)
+        self.l_ball, = self.ax_3d.plot([], [], [], 'ko')
+        self.l_ball_edge1, = self.ax_3d.plot([], [], [], 'b', linewidth=0)
+        self.l_ball_edge2, = self.ax_3d.plot([], [], [], 'b', linewidth=0)
+        self.l_ball_edge3, = self.ax_3d.plot([], [], [], 'b', linewidth=0)
+        self.l_ball_edge4, = self.ax_3d.plot([], [], [], 'b', linewidth=0)
         #
         self.l_quad_x, = self.ax_3d.plot([], [], [], 'r', linewidth=3)
         self.l_quad_y, = self.ax_3d.plot([], [], [], 'g', linewidth=3)
@@ -129,33 +129,33 @@ class SimVisual(object):
         #
         self.ts = []
         self.quad_pos, self.quad_vel, self.quad_att, self.quad_cmd = [], [], [], []
-        self.pend_pos, self.pend_vel, self.pend_att = [], [], []
+        self.ball_pos, self.ball_vel, self.ball_att = [], [], []
         self.quad_hist = []
 
     def init_animate(self,):
         # Initialize position.....
         self.l_quad_px.set_data([], [])
-        self.l_pend_px.set_data([], [])
+        self.l_ball_px.set_data([], [])
         self.l_quad_py.set_data([], [])
-        self.l_pend_py.set_data([], [])
+        self.l_ball_py.set_data([], [])
         self.l_quad_pz.set_data([], [])
-        self.l_pend_pz.set_data([], [])
+        self.l_ball_pz.set_data([], [])
 
         # Initialize velocity.....
         self.l_quad_vx.set_data([], [])
-        self.l_pend_vx.set_data([], [])
+        self.l_ball_vx.set_data([], [])
         self.l_quad_vy.set_data([], [])
-        self.l_pend_vy.set_data([], [])
+        self.l_ball_vy.set_data([], [])
         self.l_quad_vz.set_data([], [])
-        self.l_pend_vz.set_data([], [])
+        self.l_ball_vz.set_data([], [])
 
         # Initialize attitude.....
         self.l_quad_ax.set_data([], [])
-        self.l_pend_ax.set_data([], [])
+        self.l_ball_ax.set_data([], [])
         self.l_quad_ay.set_data([], [])
-        self.l_pend_ay.set_data([], [])
+        self.l_ball_ay.set_data([], [])
         self.l_quad_az.set_data([], [])
-        self.l_pend_az.set_data([], [])
+        self.l_ball_az.set_data([], [])
 
         # Initialize attitude.....
         self.l_quad_thrust.set_data([], [])
@@ -169,21 +169,21 @@ class SimVisual(object):
         # Initialize MPC planned trajectory
         self.l_quad_pred_traj.set_data([], [])
         self.l_quad_pred_traj.set_3d_properties([])
-        # Initialize planned pendulum trajectory
-        self.l_pend_pred_traj.set_data([], [])
-        self.l_pend_pred_traj.set_3d_properties([])
-        # Initialize pendulum plot
-        self.l_pend.set_data([], [])
-        self.l_pend.set_3d_properties([])
+        # Initialize planned ballulum trajectory
+        self.l_ball_pred_traj.set_data([], [])
+        self.l_ball_pred_traj.set_3d_properties([])
+        # Initialize ballulum plot
+        self.l_ball.set_data([], [])
+        self.l_ball.set_3d_properties([])
         #
-        self.l_pend_edge1.set_data([], [])
-        self.l_pend_edge1.set_3d_properties([])
-        self.l_pend_edge2.set_data([], [])
-        self.l_pend_edge2.set_3d_properties([])
-        self.l_pend_edge3.set_data([], [])
-        self.l_pend_edge3.set_3d_properties([])
-        self.l_pend_edge4.set_data([], [])
-        self.l_pend_edge4.set_3d_properties([])
+        self.l_ball_edge1.set_data([], [])
+        self.l_ball_edge1.set_3d_properties([])
+        self.l_ball_edge2.set_data([], [])
+        self.l_ball_edge2.set_3d_properties([])
+        self.l_ball_edge3.set_data([], [])
+        self.l_ball_edge3.set_3d_properties([])
+        self.l_ball_edge4.set_data([], [])
+        self.l_ball_edge4.set_3d_properties([])
 
         # Initialize quad arm
         self.l_quad_x.set_data([], [])
@@ -197,22 +197,22 @@ class SimVisual(object):
             self.l_quad_vx, self.l_quad_vy, self.l_quad_vz, \
             self.l_quad_ax, self.l_quad_ay, self.l_quad_az, \
             self.l_quad_thrust, self.l_quad_wx, self.l_quad_wy, self.l_quad_wz, \
-            self.l_pend_px, self.l_pend_py, self.l_pend_pz, \
-            self.l_pend_vx, self.l_pend_vy, self.l_pend_vz, \
-            self.l_pend_ax, self.l_pend_ay, self.l_pend_az, \
-            self.l_quad_pos, self.l_quad_pred_traj, self.l_pend, \
-            self.l_pend_pred_traj, self.l_quad_x, self.l_quad_y,  self.l_quad_z, \
-            self.l_pend_edge1, self.l_pend_edge2, self.l_pend_edge3, self.l_pend_edge4, 
+            self.l_ball_px, self.l_ball_py, self.l_ball_pz, \
+            self.l_ball_vx, self.l_ball_vy, self.l_ball_vz, \
+            self.l_ball_ax, self.l_ball_ay, self.l_ball_az, \
+            self.l_quad_pos, self.l_quad_pred_traj, self.l_ball, \
+            self.l_ball_pred_traj, self.l_quad_x, self.l_quad_y,  self.l_quad_z, \
+            self.l_ball_edge1, self.l_ball_edge2, self.l_ball_edge3, self.l_ball_edge4, 
 
     def update(self, data_info):
         info, t, update = data_info[0], data_info[1], data_info[2]
         quad_obs = info["quad_obs"]
         quad_act = info["quad_act"]
         quad_axes = info["quad_axes"] 
-        pend_obs = info["pend_obs"]
-        pend_corners = info["pend_corners"]
+        ball_obs = info["ball_obs"]
+        ball_corners = info["ball_corners"]
         pred_quad_traj = info["pred_quad_traj"]
-        pred_pend_traj = np.array(info["pred_pend_traj"])
+        pred_ball_traj = np.array(info["pred_ball_traj"])
         opt_t = info["opt_t"]
         plan_dt = info["plan_dt"]
         opt_idx = np.clip( int(opt_t/plan_dt), 0, pred_quad_traj.shape[0]-1)
@@ -227,9 +227,9 @@ class SimVisual(object):
             self.quad_vel.append(quad_obs[6:9])
             self.quad_cmd.append(quad_act[0:4])
             #
-            self.pend_pos.append(pend_obs[0:3])
-            self.pend_att.append(pend_obs[3:6])
-            self.pend_vel.append(pend_obs[6:9])
+            self.ball_pos.append(ball_obs[0:3])
+            self.ball_att.append(ball_obs[3:6])
+            self.ball_vel.append(ball_obs[6:9])
 
         if len(self.ts) == 0:
             self.init_animate()
@@ -256,20 +256,20 @@ class SimVisual(object):
             self.l_quad_wz.set_data(self.ts, quad_act_arr[:, 3])
                     
             #
-            pend_pos_arr = np.array(self.pend_pos)
-            self.l_pend_px.set_data(self.ts, pend_pos_arr[:, 0])
-            self.l_pend_py.set_data(self.ts, pend_pos_arr[:, 1])
-            self.l_pend_pz.set_data(self.ts, pend_pos_arr[:, 2])
+            ball_pos_arr = np.array(self.ball_pos)
+            self.l_ball_px.set_data(self.ts, ball_pos_arr[:, 0])
+            self.l_ball_py.set_data(self.ts, ball_pos_arr[:, 1])
+            self.l_ball_pz.set_data(self.ts, ball_pos_arr[:, 2])
             #
-            pend_vel_arr = np.array(self.pend_vel)
-            self.l_pend_vx.set_data(self.ts, pend_vel_arr[:, 0])
-            self.l_pend_vy.set_data(self.ts, pend_vel_arr[:, 1])
-            self.l_pend_vz.set_data(self.ts, pend_vel_arr[:, 2])
+            ball_vel_arr = np.array(self.ball_vel)
+            self.l_ball_vx.set_data(self.ts, ball_vel_arr[:, 0])
+            self.l_ball_vy.set_data(self.ts, ball_vel_arr[:, 1])
+            self.l_ball_vz.set_data(self.ts, ball_vel_arr[:, 2])
             #
-            pend_att_arr = np.array(self.pend_att)
-            self.l_pend_ax.set_data(self.ts, pend_att_arr[:, 0])
-            self.l_pend_ay.set_data(self.ts, pend_att_arr[:, 1])
-            self.l_pend_az.set_data(self.ts, pend_att_arr[:, 2])
+            ball_att_arr = np.array(self.ball_att)
+            self.l_ball_ax.set_data(self.ts, ball_att_arr[:, 0])
+            self.l_ball_ay.set_data(self.ts, ball_att_arr[:, 1])
+            self.l_ball_az.set_data(self.ts, ball_att_arr[:, 2])
             
 
             # plot quadrotor trajectory
@@ -280,23 +280,23 @@ class SimVisual(object):
             self.l_quad_pred_traj.set_3d_properties(pred_quad_traj[:, 2])
             if quad_pos_arr[-1, 0] <= 2.0:
                 # plot planner trajectory
-                self.l_pend_pred_traj.set_data(np.array([pred_pend_traj[opt_idx, 0]]), np.array([pred_pend_traj[opt_idx, 1]]))
-                self.l_pend_pred_traj.set_3d_properties(np.array([pred_pend_traj[opt_idx, 2]]))
+                self.l_ball_pred_traj.set_data(np.array([pred_ball_traj[opt_idx, 0]]), np.array([pred_ball_traj[opt_idx, 1]]))
+                self.l_ball_pred_traj.set_3d_properties(np.array([pred_ball_traj[opt_idx, 2]]))
             
             #
-            self.l_pend.set_data([pend_obs[kPosX]], [pend_obs[kPosY]] )
-            self.l_pend.set_3d_properties([pend_obs[kPosZ]])
+            self.l_ball.set_data([ball_obs[kPosX]], [ball_obs[kPosY]] )
+            self.l_ball.set_3d_properties([ball_obs[kPosZ]])
                      
-            c1, c2, c3, c4 = pend_corners
+            c1, c2, c3, c4 = ball_corners
             #
-            self.l_pend_edge1.set_data([c1[0], c2[0]], [c1[1], c2[1]])
-            self.l_pend_edge1.set_3d_properties([c1[2], c2[2]])
-            self.l_pend_edge2.set_data([c2[0], c2[0]], [c2[1], c4[1]])
-            self.l_pend_edge2.set_3d_properties([c2[2], c4[2]])
-            self.l_pend_edge3.set_data([c4[0], c3[0]], [c4[1], c3[1]])
-            self.l_pend_edge3.set_3d_properties([c4[2], c3[2]])
-            self.l_pend_edge4.set_data([c3[0], c1[0]], [c3[1], c1[1]])
-            self.l_pend_edge4.set_3d_properties([c3[2], c1[2]])
+            self.l_ball_edge1.set_data([c1[0], c2[0]], [c1[1], c2[1]])
+            self.l_ball_edge1.set_3d_properties([c1[2], c2[2]])
+            self.l_ball_edge2.set_data([c2[0], c2[0]], [c2[1], c4[1]])
+            self.l_ball_edge2.set_3d_properties([c2[2], c4[2]])
+            self.l_ball_edge3.set_data([c4[0], c3[0]], [c4[1], c3[1]])
+            self.l_ball_edge3.set_3d_properties([c4[2], c3[2]])
+            self.l_ball_edge4.set_data([c3[0], c1[0]], [c3[1], c1[1]])
+            self.l_ball_edge4.set_3d_properties([c3[2], c1[2]])
             
             self.quad_hist.append(quad_axes)
             #
@@ -313,10 +313,10 @@ class SimVisual(object):
             self.l_quad_vx, self.l_quad_vy, self.l_quad_vz, \
             self.l_quad_ax, self.l_quad_ay, self.l_quad_az, \
             self.l_quad_thrust, self.l_quad_wx, self.l_quad_wy, self.l_quad_wz, \
-            self.l_pend_px, self.l_pend_py, self.l_pend_pz, \
-            self.l_pend_vx, self.l_pend_vy, self.l_pend_vz, \
-            self.l_pend_ax, self.l_pend_ay, self.l_pend_az, \
-            self.l_quad_pos, self.l_quad_pred_traj, self.l_pend, \
-            self.l_pend_pred_traj, self.l_quad_x, self.l_quad_y,  self.l_quad_z, \
-            self.l_pend_edge1, self.l_pend_edge2, self.l_pend_edge3, self.l_pend_edge4, 
+            self.l_ball_px, self.l_ball_py, self.l_ball_pz, \
+            self.l_ball_vx, self.l_ball_vy, self.l_ball_vz, \
+            self.l_ball_ax, self.l_ball_ay, self.l_ball_az, \
+            self.l_quad_pos, self.l_quad_pred_traj, self.l_ball, \
+            self.l_ball_pred_traj, self.l_quad_x, self.l_quad_y,  self.l_quad_z, \
+            self.l_ball_edge1, self.l_ball_edge2, self.l_ball_edge3, self.l_ball_edge4, 
     
