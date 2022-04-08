@@ -164,7 +164,7 @@ def main():
     #     for idx_j, j in enumerate(b):
     #         for idx_k, k in enumerate(c):
     #             init_param = [np.array([0.0, 0.0, i]), np.array([0.0, k]), np.array([j, 0.0, 0.0])]
-    #             env = DynamicGap2(mpc, plan_T, plan_dt, init_param)
+    #             env = LinearEnv(mpc, plan_T, plan_dt, init_param)
     #             print(i,j,k)
     #             if run_mpc(env,write=False): # comment the yield above to proceed
     #                 caught[idx_i, idx_j, idx_k] = 1                    
