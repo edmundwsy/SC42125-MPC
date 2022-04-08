@@ -24,9 +24,9 @@ class DynamicGap2(object):
         self.plan_dt = plan_dt
 
         # parameters
-        self.ball_init_pos = np.array([0.0, 0.0, -0.5]) # starting point of the ball
-        self.ball_init_vel = np.array([0.0, -3.5]) # starting velocity of the ball
-        self.quad_init_pos = np.array([-0.3, 0.0, 0.0]) # starting point of the quadrotor
+        self.ball_init_pos = np.array([0.0, 0.0, -0.3]) # starting point of the ball
+        self.ball_init_vel = np.array([0.0, -5.0]) # starting velocity of the ball
+        self.quad_init_pos = np.array([-0.8, 0.0, 0.0]) # starting point of the quadrotor
         
         # simulation parameters ....
         self.sim_T = 1.5        # Episode length, seconds

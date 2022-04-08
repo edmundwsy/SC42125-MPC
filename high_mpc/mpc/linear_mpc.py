@@ -260,7 +260,7 @@ class LinearMPC(object):
         opt_u = sol_x0[self._s_dim:self._s_dim+self._u_dim]
 
         # Warm initialization
-        self.nlp_w0 = list(sol_x0[self._s_dim+self._u_dim:2*(self._s_dim+self._u_dim)]) + list(sol_x0[self._s_dim+self._u_dim:])
+        # self.nlp_w0 = list(sol_x0[self._s_dim+self._u_dim:2*(self._s_dim+self._u_dim)]) + list(sol_x0[self._s_dim+self._u_dim:])
         
         #
         print("OPTIMAL CONTROL", opt_u.transpose()[0])
