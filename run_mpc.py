@@ -29,7 +29,8 @@ def run_mpc(env):
     env.reset()
     t, n = 0, 0
     t0 = time.time()
-    csv_file = "Names.csv"
+    csv_file = "N.csv"
+    caught = False
     try:
         # print(info)
         with open(csv_file, 'w', newline='') as csvfile:
@@ -43,7 +44,8 @@ def run_mpc(env):
                 print("Reached the goal:", relative_pos, np.linalg.norm(relative_pos))
                 if np.linalg.norm(relative_pos) < 1e-1:
                     print("!!!!!!!!!!!!!")
-                    break
+                    caught = True
+                #     break
                 
                 t_now = time.time()
                 t_temp += t_now - t0
@@ -53,7 +55,7 @@ def run_mpc(env):
                 #
                 n += 1
                 update = False
-                if t >= env.sim_T:
+                if t > env.sim_T:
                     update = True
                 yield [info, t, update]
                 
@@ -83,35 +85,13 @@ def run_mpc(env):
 
                 # calculate costs
 
-                Q = np.diag([100, 100, 100, 0.01, 0.01, 0.01, 0.01, 0.01])
+                Q = env.mpc._Q
 
                 # cost matrix for the action
-                R = np.diag([0.1, 0.1, 0.1, 0.1])  # T, wx, wy, wz
+                R = env.mpc._R  # T, wx, wy, wz
 
                 # solution of the DARE
-                P = np.array([[4.62926944e+02,  1.12579780e-13,  2.71715235e-14, 8.39543304e+01,  3.76898971e-14, -6.76638800e-15,
-                               1.67233208e-14,  6.27040086e+01],
-                              [1.12579780e-13,  4.62926944e+02,  2.96208280e-13,
-                               2.13652440e-14,  8.39543304e+01,  1.44584455e-13,
-                               6.27040086e+01, -1.58557492e-14],
-                              [2.71715235e-14,  2.96208280e-13,  3.61822016e+02,
-                               -4.79742110e-15,  2.96141426e-14,  4.73164850e+01,
-                               1.76132359e-15, -4.60323355e-15],
-                              [8.39543304e+01,  2.13652440e-14, -4.79742110e-15,
-                               2.40774426e+01,  1.22085597e-15, -6.17333244e-15,
-                               -2.42034579e-15,  2.27569742e+01],
-                              [3.76898971e-14,  8.39543304e+01,  2.96141426e-14,
-                               1.22085597e-15,  2.40774426e+01,  2.40290197e-14,
-                               2.27569742e+01, -1.02861327e-14],
-                              [-6.76638800e-15,  1.44584455e-13,  4.73164850e+01,
-                               -6.17333244e-15,  2.40290197e-14,  1.23884975e+01,
-                               2.51466214e-14, -1.05792536e-14],
-                              [1.67233208e-14,  6.27040086e+01,  1.76132359e-15,
-                               -2.42034579e-15,  2.27569742e+01,  2.51466214e-14,
-                               2.93179270e+01, -1.98758154e-14],
-                              [6.27040086e+01, -1.58557492e-14, -4.60323355e-15,
-                               2.27569742e+01, -1.02861327e-14, -1.05792536e-14,
-                               -1.98758154e-14,  2.93179270e+01]])
+                P = env.mpc._P
 
                 u = np.array(info["quad_act"])
                 x = np.array(info["quad_s0"])[:, np.newaxis]
@@ -123,6 +103,7 @@ def run_mpc(env):
                 temp_list.append(terminal_cost[0][0])
 
                 writer.writerow(temp_list)
+            print("caught: ", caught)
     except IOError:
         print("I/O error")
 
@@ -136,8 +117,13 @@ def main():
     # saved mpc model (casadi code generation)
     so_path = ""
     #
+    init_param = []
+    init_param.append(np.array([0.0, 0.0, -0.5])) # starting point of the ball
+    init_param.append(np.array([0.0, -3])) # starting velocity of the ball
+    init_param.append(np.array([-0.3, 0.0, 0.0])) # starting point of the quadrotor
+
     mpc = MPC(T=plan_T, dt=plan_dt, so_path=so_path)
-    env = DynamicGap2(mpc, plan_T, plan_dt)
+    env = DynamicGap2(mpc, plan_T, plan_dt, init_param)
 
     #
     sim_visual = SimVisual(env)

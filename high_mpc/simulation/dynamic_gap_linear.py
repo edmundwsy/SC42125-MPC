@@ -18,15 +18,20 @@ class Space(object):
 
 class DynamicGap2(object):
 
-    def __init__(self, mpc, plan_T, plan_dt):
+    def __init__(self, mpc, plan_T, plan_dt, init_param = None):
         self.mpc = mpc
         self.plan_T = plan_T
         self.plan_dt = plan_dt
 
         # parameters
-        self.ball_init_pos = np.array([0.0, 0.0, -0.5]) # starting point of the ball
-        self.ball_init_vel = np.array([0.0, -3.5]) # starting velocity of the ball
-        self.quad_init_pos = np.array([-0.3, 0.0, 0.0]) # starting point of the quadrotor
+        if init_param is None:
+            self.ball_init_pos = np.array([0.0, 0.0, -0.5]) # starting point of the ball
+            self.ball_init_vel = np.array([0.0, -3.5]) # starting velocity of the ball
+            self.quad_init_pos = np.array([-0.3, 0.0, 0.0]) # starting point of the quadrotor
+        else:
+            self.ball_init_pos = init_param[0] # starting point of the ball
+            self.ball_init_vel = init_param[1] # starting velocity of the ball
+            self.quad_init_pos = init_param[2] # starting point of the quadrotor
         
         # simulation parameters ....
         self.sim_T = 1.5        # Episode length, seconds
@@ -62,7 +67,7 @@ class DynamicGap2(object):
         if init_vel is not None:
             self.ball_state = self.ball.reset(init_vel)
         else:
-            self.ball_state = self.ball.reset()
+            self.ball_state = self.ball.reset(self.ball_init_vel)
         
         # observation, can be part of the state, e.g., postion
         # or a cartesian representation of the state
