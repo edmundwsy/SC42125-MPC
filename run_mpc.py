@@ -29,7 +29,7 @@ def run_mpc(env):
     env.reset()
     t, n = 0, 0
     t0 = time.time()
-    csv_file = "N.csv"
+    csv_file = "Q_001.csv"
     caught = False
     try:
         # print(info)

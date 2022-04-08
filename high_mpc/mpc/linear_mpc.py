@@ -47,6 +47,10 @@ class LinearMPC(object):
             100, 100, 100,  # delta_x, delta_y, delta_z
             0.01, 0.01, 0.01, # delta_vx, delta_vy, delta_vz
             0.01, 0.01]) # delta_wx, delta_wy
+        self._Q = 0.01*np.diag([
+            1, 1, 1,  # delta_x, delta_y, delta_z
+            1, 1, 1, # delta_vx, delta_vy, delta_vz
+            1, 1]) # delta_wx, delta_wy
         
         # cost matrix for the action
         self._R = np.diag([0.1, 0.1, 0.1, 0.1]) # T, wx, wy, wz
