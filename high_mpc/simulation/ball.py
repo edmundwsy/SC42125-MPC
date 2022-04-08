@@ -1,5 +1,5 @@
 import numpy as np
-from high_mpc.common.pend_index import *
+from high_mpc.common.ball_index import *
 from high_mpc.common.util import Point
 
 class Ball(object):
@@ -28,11 +28,11 @@ class Ball(object):
     
     def reset(self, init=None):
         if init is not None:
-            self._state[kTheta] = init[0]
-            self._state[kDotTheta] = init[1]
+            self._state[kH] = init[0]
+            self._state[kDotH] = init[1]
         else:
-            self._state[kTheta] = 0
-            self._state[kDotTheta] = -3.5
+            self._state[kH] = 0
+            self._state[kDotH] = -3.5
         #
         self._t = 0.0
         return self._state
@@ -79,14 +79,14 @@ class Ball(object):
         pos[0] = self.pivot_point[0]
         pos[1] = self.pivot_point[1]
         pos[2] = self._to_planar_coordinates(self.pivot_point, \
-            theta=self._state[kTheta])
+            theta=self._state[kH])
         return pos
 
     def get_veloctiy(self,):
         vel = np.zeros(shape=3)
         vel[0] = 0.0
         vel[1] = 0.0
-        vel[2] = self._state[kDotTheta]
+        vel[2] = self._state[kDotH]
         return vel
 
     def get_euler(self,):
@@ -106,7 +106,7 @@ class Ball(object):
         return z
 
     def get_corners(self, ):  
-        theta = self._state[kTheta]
+        theta = self._state[kH]
         y1, z1 = self.width/2, self._to_planar_coordinates(self.pivot_point, theta-self.height/2)
         y2, z2 = -self.width/2, self._to_planar_coordinates(self.pivot_point, theta-self.height/2)
         y3, z3 = self.width/2, self._to_planar_coordinates(self.pivot_point, theta+self.height/2)
@@ -116,7 +116,7 @@ class Ball(object):
         return corners
 
     def get_3d_corners(self,):
-        theta = self._state[kTheta]
+        theta = self._state[kH]
         y1, z1 = self.width/2, self._to_planar_coordinates(self.pivot_point, theta-self.height/2)
         y2, z2 = -self.width/2, self._to_planar_coordinates(self.pivot_point, theta-self.height/2)
         y3, z3 = self.width/2, self._to_planar_coordinates(self.pivot_point, theta+self.height/2)
@@ -237,20 +237,20 @@ class Ball(object):
 #     def get_position(self, state):
 #         pos = np.zeros(shape=3)
 #         pos[0] = self.pivot_point[0]
-#         pos[1] = self.pivot_point[1] + self._length*np.sin(state[kTheta])
-#         pos[2] = self.pivot_point[2] - self._length*np.cos(state[kTheta])
+#         pos[1] = self.pivot_point[1] + self._length*np.sin(state[kH])
+#         pos[2] = self.pivot_point[2] - self._length*np.cos(state[kH])
 #         return pos
 
 #     def get_veloctiy(self, state):
 #         vel = np.zeros(shape=3)
 #         vel[0] = 0.0
-#         vel[1] = self._length*state[kDotTheta]*np.cos(state[kTheta])
-#         vel[2] = self._length*state[kDotTheta]*np.sin(state[kTheta])
+#         vel[1] = self._length*state[kDotH]*np.cos(state[kH])
+#         vel[2] = self._length*state[kDotH]*np.sin(state[kH])
 #         return vel
 
 #     def get_euler(self, state):
 #         euler = np.zeros(shape=3)
-#         euler[0] = state[kTheta]
+#         euler[0] = state[kH]
 #         euler[1] = 0.0 
 #         euler[2] = 0.0 
 #         return euler

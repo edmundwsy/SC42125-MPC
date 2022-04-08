@@ -1,6 +1,6 @@
 # state index
-kTheta  = 0
-kDotTheta = 1
+kH  = 0
+kDotH = 1
 
 # state index
 # kPosX = 0

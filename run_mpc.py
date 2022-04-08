@@ -178,10 +178,10 @@ def main():
                                   init_func=sim_visual.init_animate, interval=100, blit=True, repeat=False)
 
     #
-    if args.save_video:
-        writer = animation.writers["ffmpeg"]
-        writer = writer(fps=10, metadata=dict(artist='Me'), bitrate=1800)
-        ani.save("MPC_quad_ball.mp4", writer=writer)
+    # if args.save_video:
+    #     writer = animation.writers["ffmpeg"]
+    #     writer = writer(fps=10, metadata=dict(artist='Me'), bitrate=1800)
+    #     ani.save("MPC_quad_ball.mp4", writer=writer)
 
     plt.tight_layout()
     plt.show()
