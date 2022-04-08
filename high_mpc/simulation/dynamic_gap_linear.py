@@ -27,7 +27,7 @@ class DynamicGap2(object):
 
         # 
         self.goal_point = np.array([5.0,  0.0, 0.0]) 
-        self.pivot_point = np.array([0.0, 0.0, 0.12]) # starting point of the box
+        self.pivot_point = np.array([0.0, 0.0, 0.0]) # starting point of the box
 
         # goal state, position, velocity, roll pitch
         self.quad_sT = self.goal_point.tolist() + [0.0, 0.0, 0.0] + [0.0, 0.0] 
@@ -58,18 +58,22 @@ class DynamicGap2(object):
         # reset the environment
         self.t = 0
         self.reset()
+        self.catch_flag = False
     
     def seed(self, seed):
         np.random.seed(seed=seed)
     
-    def reset(self, init_theta=None):
+    def reset(self, init_theta=None, init_quad=None):
         self.t = 0
         # state for ODE
-        self.quad_state = self.quad.reset()
         if init_theta is not None:
             self.pend_state = self.pend.reset(init_theta)
         else:
             self.pend_state = self.pend.reset()
+        if init_quad is not None:
+            self.quad_state = self.quad.reset(init_quad)
+        else:
+            self.quad_state = self.quad.reset()
         
         # observation, can be part of the state, e.g., postion
         # or a cartesian representation of the state
@@ -77,6 +81,7 @@ class DynamicGap2(object):
         pend_obs = self.pend.get_cartesian_state()
         #
         obs = (quad_obs - pend_obs).tolist()
+        self.catch_flag = False
         
         return obs
 
@@ -84,7 +89,7 @@ class DynamicGap2(object):
         self.t += self.sim_dt
         opt_t = u
         
-        print("===========================================================")
+        # print("===========================================================")
         #
         plan_pend_traj, pred_pend_traj_cart = self.planner.plan2(self.pend_state, opt_t, self.quad.get_cartesian_state()) # predict relative pend traj, cartesian pend traj
         # pred_pend_traj_cart = np.array(pred_pend_traj_cart)
@@ -95,9 +100,13 @@ class DynamicGap2(object):
         # pend_state = np.array([0, 0, 3, 0, 0, 0, 0, 0, 0])
         quad_s0 = np.zeros(8)
         quad_s0[0:3] = quad_state[0:3] - pend_state[0:3]  # relative position
-        quad_s0[3:6] = quad_state[6:9] - pend_state[6:9]  # relative velocity # TODO -5
+        quad_s0[3:6] = quad_state[6:9] + pend_state[6:9]  # relative velocity # TODO -5
         quad_s0[6:8] = quad_state[3:5]
         quad_s0 = quad_s0.tolist()
+
+        abs_dist = np.linalg.norm(quad_s0[0:3])
+        if abs_dist < 0.1:
+            self.catch_flag = True
         
         # ref_traj = quad_s0 + plan_pend_traj + self.quad_sT # in mpc state, 8d+3
 

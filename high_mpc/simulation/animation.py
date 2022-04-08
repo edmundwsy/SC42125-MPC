@@ -99,7 +99,7 @@ class SimVisual(object):
         # Plot 3D coordinates
         self.l_quad_pos, = self.ax_3d.plot([], [], [], 'b-')
         self.l_quad_pred_traj, = self.ax_3d.plot([], [], [], 'r*')
-        self.l_pend_pred_traj, = self.ax_3d.plot([], [], [], 'k*')
+        self.l_pend_pred_traj, = self.ax_3d.plot([], [], [], 'k*', markersize=0)
         #
         self.l_pend, = self.ax_3d.plot([], [], [], 'ro')
         self.l_pend_edge1, = self.ax_3d.plot([], [], [], 'b', linewidth=0)
@@ -118,11 +118,11 @@ class SimVisual(object):
         # Draw a circle on the x=0 'wall'
 
         # # Ground
-        width, height = 5, 2
-        g = Rectangle(xy=(0.5-width, 0-height), width=2*width, height=2*height, \
-            alpha=0.8, facecolor='gray', edgecolor='black')
-        self.ax_3d.add_patch(g)
-        art3d.pathpatch_2d_to_3d(g, z=0, zdir="z")
+        # width, height = 5, 2
+        # g = Rectangle(xy=(0.5-width, 0-height), width=2*width, height=2*height, \
+        #     alpha=0.8, facecolor='gray', edgecolor='black')
+        # self.ax_3d.add_patch(g)
+        # art3d.pathpatch_2d_to_3d(g, z=0, zdir="z")
         #
         # #
         self.reset_buffer()

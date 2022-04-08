@@ -40,7 +40,7 @@ class Quadrotor_v0(object):
         self.reset()
         # self._t = 0.0
     
-    def reset(self):
+    def reset(self,init_state=None):
         self._state = np.zeros(shape=self.s_dim)
         self._state[kQuatW] = 1.0 # 
         #
@@ -79,6 +79,8 @@ class Quadrotor_v0(object):
         self._state[kVelY] = 0
         self._state[kVelZ] = 0
         #
+        if init_state is not None:
+            self._state = init_state
         return self._state
 
     def run(self, action):

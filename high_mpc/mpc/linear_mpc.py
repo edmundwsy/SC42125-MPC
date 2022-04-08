@@ -286,14 +286,14 @@ class MPC2(object):
         opt_u = sol_x0[self._s_dim:self._s_dim+self._u_dim]
 
         # Warm initialization
-        self.nlp_w0 = list(sol_x0[self._s_dim+self._u_dim:2*(self._s_dim+self._u_dim)]) + list(sol_x0[self._s_dim+self._u_dim:])
+        # self.nlp_w0 = list(sol_x0[self._s_dim+self._u_dim:2*(self._s_dim+self._u_dim)]) + list(sol_x0[self._s_dim+self._u_dim:])
         
         #
-        print("OPTIMAL CONTROL", opt_u.transpose()[0])
+        # print("OPTIMAL CONTROL", opt_u.transpose()[0])
         x0_array = np.reshape(sol_x0[:-self._s_dim], newshape=(-1, self._s_dim+self._u_dim))
 
         cost = self.sol['f']
-        print("Cost", cost)
+        # print("Cost", cost)
         
         # return optimal action, and a sequence of predicted optimal trajectory.  
         return opt_u, x0_array, cost
