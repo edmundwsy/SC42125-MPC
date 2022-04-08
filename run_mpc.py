@@ -9,7 +9,7 @@ import matplotlib.animation as animation
 from functools import partial
 
 #
-from high_mpc.simulation.dynamic_gap_linear import DynamicGap2
+from high_mpc.simulation.linear_env import LinearEnv
 from high_mpc.mpc.linear_mpc import LinearMPC as MPC
 from high_mpc.mpc.lqr import LQR
 from high_mpc.simulation.animation import SimVisual
@@ -44,10 +44,10 @@ def run_mpc(env,write=True):
                     
                     relative_pos = np.array(info['quad_s0'][0:3])
                     print("Reached the goal:", relative_pos, np.linalg.norm(relative_pos))
-                    if np.linalg.norm(relative_pos) < 1e-1:
+                    if np.linalg.norm(relative_pos) < 1e-1/2:
                         print("!!!!!!!!!!!!!")
                         caught = True
-                    #     break
+                        break
                     
                     t_now = time.time()
                     t_temp += t_now - t0
@@ -138,12 +138,12 @@ def main():
     #
     init_param = []
     init_param.append(np.array([0.0, 0.0, -.5])) # starting point of the ball
-    init_param.append(np.array([0.0, -5])) # starting velocity of the ball
-    init_param.append(np.array([-1, 0.0, 0.0])) # starting point of the quadrotor
+    init_param.append(np.array([0.0, -3])) # starting velocity of the ball
+    init_param.append(np.array([-0.3, 0.0, 0.0])) # starting point of the quadrotor
 
     mpc = MPC(T=plan_T, dt=plan_dt, so_path=so_path)
     lqr = LQR(T=plan_T, dt=plan_dt)
-    env = DynamicGap2(mpc, plan_T, plan_dt, init_param)
+    env = LinearEnv(mpc, plan_T, plan_dt, init_param)
 
     #
     sim_visual = SimVisual(env)
