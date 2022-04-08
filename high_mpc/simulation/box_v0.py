@@ -39,17 +39,6 @@ class box_v0(object):
         self.pivot_point = pivot_point # e.g., np.array([2.0, 0.0, 2.0])
         
         self._state = np.zeros(shape=self.s_dim)
-        
-        # initial state
-        # self._theta_box = np.array([-0.5, 0.5])
-        # self._dot_theta_box = np.array([-0.1, 0.1])
-
-        # self._theta_box = np.array([0.5, 0.5]) * self._pi
-        # self._dot_theta_box = np.array([-0.0, 0.0]) * self._pi
-
-        # x, y, z, roll, pitch, yaw, vx, vy, vz
-        # self.obs_low = np.array([-10, -10, -10, -np.pi, -np.pi, -np.pi, -10, -10, -10])
-        # self.obs_high = np.array([10, 10, 10, np.pi, np.pi, np.pi, 10, 10, 10])
 
         self.length = 2.0  # distance between pivot point to the gate center
         self.width = 1.0   # gate width (for visualization only)
@@ -60,34 +49,15 @@ class box_v0(object):
         self.reset()
         self._t = 0.0
     
-    # def _init_corners(self):
-    #     # compute distance between pivot point to four corners
-    #     # and the 4 angles (for visualization)
-    #     edge1, edge2 = self.width/2,  self.length-self.height/2
-    #     self.length1 = np.sqrt( (edge1)**2 + (edge2)**2 )
-    #     self.delta_theta1 = np.arctan2(edge1, edge2)
-    #     #
-    #     self.length2 = self.length1
-    #     self.delta_theta2 = -self.delta_theta1
-
-    #     #
-    #     edge1, edge2 = self.width/2, self.length+self.height/2
-    #     self.length3 = np.sqrt( (edge1)**2 + (edge2)**2 )
-    #     self.delta_theta3 = np.arctan2(edge1, edge2)
-    #     #
-    #     self.length4 = self.length3
-    #     self.delta_theta4 = -self.delta_theta3
-        
     def reset(self, init=None):
         if init is not None:
             self._state[kTheta] = init[0]
             self._state[kDotTheta] = init[1]
         else:
             self._state[kTheta] = 0
-            self._state[kDotTheta] = -5
+            self._state[kDotTheta] = -3.5
         #
         self._t = 0.0
-        # print("init pendulum: ", self._state)
         return self._state
 
     def run(self,):

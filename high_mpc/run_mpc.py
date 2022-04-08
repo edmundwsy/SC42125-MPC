@@ -40,6 +40,13 @@ def run_mpc(env):
             while t < env.sim_T:
                 t = env.sim_dt * n
                 _, _, _, info = env.step()
+                
+                relative_pos = np.array(info['quad_s0'][0:3])
+                print("Reached the goal:", relative_pos, np.linalg.norm(relative_pos))
+                if np.linalg.norm(relative_pos) < 1e-1:
+                    print("!!!!!!!!!!!!!")
+                    break
+                
                 t_now = time.time()
                 t_temp += t_now - t0
                 print(t_now - t0)
@@ -51,6 +58,10 @@ def run_mpc(env):
                 if t >= env.sim_T:
                     update = True
                 yield [info, t, update]
+                
+
+                
+                # writer.writerow(info)
                 temp_list = []
                 temp_list.extend(info["quad_obs"])
 
@@ -122,7 +133,7 @@ def main():
     #
     args = arg_parser().parse_args()
     #
-    plan_T = 2.0   # Prediction horizon for MPC
+    plan_T = 0.8   # Prediction horizon for MPC
     plan_dt = 0.1  # Sampling time step for MPC
     # saved mpc model (casadi code generation)
     so_path = "./mpc/saved/mpc_v1.so"

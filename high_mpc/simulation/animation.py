@@ -22,12 +22,11 @@ class SimVisual(object):
     def __init__(self, env):
         #
         self.act_min, self.act_max = -7, 21
-        self.pos_min, self.pos_max = -4.0, 7.0
-        self.vel_min, self.vel_max = -6.0, 6.0
+        self.pos_min, self.pos_max = -4.0, 3.0
+        self.vel_min, self.vel_max = -3.0, 3.0
         self.att_min, self.att_max = -np.pi, np.pi
         self.t_min, self.t_max = 0, env.sim_T
-        self.goal_point = env.goal_point
-        self.pivot_point = env.pivot_point          # e.g., np.array([2.0, 0.0, 2.0])
+        self.pivot_point = env.ball_init_pos          # e.g., np.array([2.0, 0.0, 2.0])
         self.frames = []
         #
         # create figure
@@ -96,12 +95,12 @@ class SimVisual(object):
         self.l_quad_wy, = self.ax_act.plot([], [], '-g', label='quad_wy')
         self.l_quad_wz, = self.ax_act.plot([], [], '-b', label='quad_wz')
         
-        # Plot 3D coordinates
+        # Plot 3D coordinates,
         self.l_quad_pos, = self.ax_3d.plot([], [], [], 'b-')
-        self.l_quad_pred_traj, = self.ax_3d.plot([], [], [], 'r*')
-        self.l_pend_pred_traj, = self.ax_3d.plot([], [], [], 'k*')
+        self.l_quad_pred_traj, = self.ax_3d.plot([], [], [], 'r*', markersize=4)
+        self.l_pend_pred_traj, = self.ax_3d.plot([], [], [], 'k*', markersize=0)
         #
-        self.l_pend, = self.ax_3d.plot([], [], [], 'ro')
+        self.l_pend, = self.ax_3d.plot([], [], [], 'ko')
         self.l_pend_edge1, = self.ax_3d.plot([], [], [], 'b', linewidth=0)
         self.l_pend_edge2, = self.ax_3d.plot([], [], [], 'b', linewidth=0)
         self.l_pend_edge3, = self.ax_3d.plot([], [], [], 'b', linewidth=0)
@@ -113,16 +112,15 @@ class SimVisual(object):
         
         #
         self.ax_3d.scatter(self.pivot_point[0], self.pivot_point[1], self.pivot_point[2], marker='o', color='g')
-        self.ax_3d.scatter(self.goal_point[0], self.goal_point[1], self.goal_point[2], marker='o', color='r', s=5)
         self.ax_3d.view_init(elev=20, azim=110)
         # Draw a circle on the x=0 'wall'
 
         # # Ground
-        width, height = 5, 2
-        g = Rectangle(xy=(0.5-width, 0-height), width=2*width, height=2*height, \
-            alpha=0.8, facecolor='gray', edgecolor='black')
-        self.ax_3d.add_patch(g)
-        art3d.pathpatch_2d_to_3d(g, z=0, zdir="z")
+        # width, height = 5, 2
+        # g = Rectangle(xy=(0.5-width, 0-height), width=2*width, height=2*height, \
+        #     alpha=0.8, facecolor='gray', edgecolor='black')
+        # self.ax_3d.add_patch(g)
+        # art3d.pathpatch_2d_to_3d(g, z=0, zdir="z")
         #
         # #
         self.reset_buffer()

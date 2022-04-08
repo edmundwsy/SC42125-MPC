@@ -9,13 +9,13 @@ from os import system
 from high_mpc.common.quad_index import *
 
 #
-class MPC2(object):
+class LinearMPC(object):
     """
-    Nonlinear MPC
+    Linear MPC
     """
     def __init__(self, T, dt, so_path='./nmpc.so'):
         """
-        Nonlinear MPC for quadrotor control        
+        Linear MPC for quadrotor control        
         """
         self.so_path = so_path
 
@@ -32,7 +32,7 @@ class MPC2(object):
         self._w_max_xy = 3.0
         self._thrust_min = 0.0
         self._thrust_max = 30.0
-        self._euler_bound = np.pi/4
+        self._euler_bound = np.pi/6
 
         #
         # state dimension (px, py, pz,           # quadrotor position
@@ -229,24 +229,6 @@ class MPC2(object):
             'g': ca.vertcat(*self.nlp_g) }        
         
         # # # # # # # # # # # # # # # # # # # 
-        # -- qpoases            
-        # # # # # # # # # # # # # # # # # # # 
-        # nlp_options ={
-        #     'verbose': False, \
-        #     "qpsol": "qpoases", \
-        #     "hessian_approximation": "gauss-newton", \
-        #     "max_iter": 100, 
-        #     "tol_du": 1e-2,
-        #     "tol_pr": 1e-2,
-        #     "qpsol_options": {"sparse":True, "hessian_type": "posdef", "numRefinementSteps":1} 
-        # }
-        # self.solver = ca.nlpsol("solver", "sqpmethod", nlp_dict, nlp_options)
-        # cname = self.solver.generate_dependencies("mpc_v1.c")  
-        # system('gcc -fPIC -shared ' + cname + ' -o ' + self.so_path)
-        # self.solver = ca.nlpsol("solver", "sqpmethod", self.so_path, nlp_options)
-        
-
-        # # # # # # # # # # # # # # # # # # # 
         # -- ipopt
         # # # # # # # # # # # # # # # # # # # 
         ipopt_options = {
@@ -260,14 +242,6 @@ class MPC2(object):
         }
         
         self.solver = ca.nlpsol("solver", "ipopt", nlp_dict, ipopt_options)
-        # jit (just-in-time compilation)
-        # print("Generating shared library........")
-        # cname = self.solver.generate_dependencies("mpc_v1.c")  
-        # system('gcc -fPIC -shared -O3 ' + cname + ' -o ' + self.so_path) # -O3
-        
-        # # reload compiled mpc
-        # print(self.so_path)
-        # self.solver = ca.nlpsol("solver", "ipopt", self.so_path, ipopt_options)
 
     def solve(self, state):
         # # # # # # # # # # # # # # # #

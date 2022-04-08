@@ -2,7 +2,6 @@ import numpy as np
 #
 from high_mpc.simulation.quadrotor import Quadrotor_v0
 from high_mpc.simulation.box_v0 import box_v0
-from high_mpc.simulation.box_v1 import box_v1
 #
 from high_mpc.common.quad_index import *
 
@@ -20,31 +19,25 @@ class Space(object):
 class DynamicGap2(object):
 
     def __init__(self, mpc, plan_T, plan_dt):
-        #
         self.mpc = mpc
         self.plan_T = plan_T
         self.plan_dt = plan_dt
 
-        # 
-        self.goal_point = np.array([5.0,  0.0, 0.0]) 
-        self.pivot_point = np.array([0.0, 0.0, 0.12]) # starting point of the box
-
-        # goal state, position, velocity, roll pitch
-        self.quad_sT = self.goal_point.tolist() + [0.0, 0.0, 0.0] + [0.0, 0.0] 
-
+        # parameters
+        self.ball_init_pos = np.array([0.0, 0.0, -0.5]) # starting point of the ball
+        self.ball_init_vel = np.array([0.0, -3.5]) # starting velocity of the ball
+        self.quad_init_pos = np.array([-0.3, 0.0, 0.0]) # starting point of the quadrotor
+        
         # simulation parameters ....
-        self.sim_T = 3.0    # Episode length, seconds
-        self.sim_dt = 0.02  # simulation time step
+        self.sim_T = 1.5        # Episode length, seconds
+        self.sim_dt = 0.02      # simulation time step
         self.max_episode_steps = int(self.sim_T/self.sim_dt)
+        
         # Simulators, a quadrotor and a pendulum
         self.quad = Quadrotor_v0(dt=self.sim_dt)
-        self.pend = box_v0(self.pivot_point, dt=self.sim_dt)
-
-        self.planner = box_v1(pivot_point=self.pivot_point, sigma=10, \
-            T=self.plan_T, dt=self.plan_dt)
+        self.ball = box_v0(self.ball_init_pos, dt=self.sim_dt)
     
-
-        #
+        # state space
         self.observation_space = Space(
             low=np.array([-10.0, -10.0, -10.0, -2*np.pi, -2*np.pi, -2*np.pi, -10.0, -10.0, -10.0]),
             high=np.array([10.0, 10.0, 10.0, 2*np.pi, 2*np.pi, 2*np.pi, 10.0, 10.0, 10.0]),
@@ -57,26 +50,26 @@ class DynamicGap2(object):
 
         # reset the environment
         self.t = 0
-        self.reset()
+        self.reset(init_vel=self.ball_init_vel)
     
     def seed(self, seed):
         np.random.seed(seed=seed)
     
-    def reset(self, init_theta=None):
+    def reset(self, init_vel=None):
         self.t = 0
         # state for ODE
-        self.quad_state = self.quad.reset()
-        if init_theta is not None:
-            self.pend_state = self.pend.reset(init_theta)
+        self.quad_state = self.quad.reset(self.quad_init_pos)
+        if init_vel is not None:
+            self.ball_state = self.ball.reset(init_vel)
         else:
-            self.pend_state = self.pend.reset()
+            self.ball_state = self.ball.reset()
         
         # observation, can be part of the state, e.g., postion
         # or a cartesian representation of the state
         quad_obs = self.quad.get_cartesian_state()
-        pend_obs = self.pend.get_cartesian_state()
+        ball_obs = self.ball.get_cartesian_state()
         #
-        obs = (quad_obs - pend_obs).tolist()
+        obs = (quad_obs - ball_obs).tolist()
         
         return obs
 
@@ -85,17 +78,14 @@ class DynamicGap2(object):
         opt_t = u
         
         print("===========================================================")
-        #
-        plan_pend_traj, pred_pend_traj_cart = self.planner.plan2(self.pend_state, opt_t, self.quad.get_cartesian_state()) # predict relative pend traj, cartesian pend traj
-        # pred_pend_traj_cart = np.array(pred_pend_traj_cart)
         
         #
         quad_state = self.quad.get_cartesian_state()
-        pend_state = self.pend.get_cartesian_state()
+        ball_state = self.ball.get_cartesian_state()
         # pend_state = np.array([0, 0, 3, 0, 0, 0, 0, 0, 0])
         quad_s0 = np.zeros(8)
-        quad_s0[0:3] = quad_state[0:3] - pend_state[0:3]  # relative position
-        quad_s0[3:6] = quad_state[6:9] - pend_state[6:9]  # relative velocity # TODO -5
+        quad_s0[0:3] = quad_state[0:3] - ball_state[0:3]  # relative position
+        quad_s0[3:6] = quad_state[6:9] + ball_state[6:9]  # relative velocity # TODO -5
         quad_s0[6:8] = quad_state[3:5]
         quad_s0 = quad_s0.tolist()
         
@@ -107,7 +97,7 @@ class DynamicGap2(object):
         # ------------------------------------------------------------
         
         # back to world frame
-        pred_traj[:,0:3] = pred_traj[:,0:3] + self.pend.get_cartesian_state()[0:3]
+        pred_traj[:,0:3] = pred_traj[:,0:3] + self.ball.get_cartesian_state()[0:3]
         
         # run the actual control command on the quadrotor
         # if (quad_state[4] > 0.5):
@@ -118,20 +108,22 @@ class DynamicGap2(object):
         
         self.quad_state = self.quad.run(quad_act)
         # simulate one step pendulum
-        self.pend_state = self.pend.run()
+        self.ball_state = self.ball.run()
         
         # update the observation.
         quad_obs = self.quad.get_cartesian_state()
-        pend_obs = self.pend.get_cartesian_state()
+        ball_obs = self.ball.get_cartesian_state()
         
-        obs = (quad_obs - pend_obs).tolist()
+        obs = (quad_obs - ball_obs).tolist()
+        
+        pred_pend_traj_cart = pred_traj  # TODO: useless
         #
         info = {
             "quad_obs": quad_obs, 
             "quad_act": quad_act, 
             "quad_axes": self.quad.get_axes(),
-            "pend_obs": pend_obs,
-            "pend_corners": self.pend.get_3d_corners(),
+            "pend_obs": ball_obs,
+            "pend_corners": self.ball.get_3d_corners(),
             "pred_quad_traj": pred_traj, 
             "pred_pend_traj": pred_pend_traj_cart, 
             "opt_t": opt_t, "plan_dt": self.plan_dt,
