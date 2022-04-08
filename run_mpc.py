@@ -151,6 +151,7 @@ def main():
     #
     run_mpc(env)
 
+    # Test the MPC
     # a = np.arange(-8,9,2) # p_z
     # b = np.arange(-8,9,2) # p_x
     # c = np.arange(-10,4,2) # v_z
