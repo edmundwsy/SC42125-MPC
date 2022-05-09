@@ -1,8 +1,9 @@
-# MPC course project: flying a quadrotor through a fast-moving gate
+# MPC course project: A Model Predictive Control Approach for Catching Ball with Quadrotor
+
 
 ![img](https://img.shields.io/badge/STATUS-Building-green?style=for-the-badge)
 
-This project is a course project for the Model Predictive Control course (SC42125). We'd like to apply MPC to a challenging practical problem: control a quadrotor flying through a fast-moving gate. With the help of knowledge learned in the course, we will linearize the control problem, use MPC to find a solution and analysis its feasibility and stability.
+This project is a course project for the Model Predictive Control course (SC42125). We'd like to apply Linear MPC to a challenging practical problem: catch a flying ball with a quadrotor. With the help of knowledge learned in the course, we will linearize the control problem, use MPC to find a solution and analysis its feasibility and stability with DARE and terminal set theory.
 
 
 
@@ -36,6 +37,14 @@ Standard MPC
 cd high_mpc
 python3 run_mpc.py
 ```
+
+### Demo
+
+
+
+https://user-images.githubusercontent.com/44539400/167367098-674c9fed-670f-4b21-9c20-bdfc391d1bd7.mp4
+
+
 
 ### Thanks
 
